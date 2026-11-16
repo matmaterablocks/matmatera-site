@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Info | Mat Matera</title>
+<meta name="description" content="Mat Matera is an oil painter who works outdoors and from sight around Boston and Northampton, Massachusetts. Ask about a painting or a print.">
+<meta name="color-scheme" content="light dark">
+<script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="info.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+<a class="site-name" href="index.html">Mat Matera</a>
+<nav aria-label="Main"><a href="artwork.html">Artwork</a><a href="info.html" aria-current="page">Info</a></nav>
+</header>
+<main id="main">
+<div class="info-hero">
+  <figure class="info-detail">
+    <img src="assets/info/peach-drops.webp" alt="Detail of an oil painting by Mat Matera: an open tin of peach drop candies on a blue cloth" width="720" height="960" decoding="async">
+    <figcaption>Peach Drops, oil. Detail.</figcaption>
+  </figure>
+  <div class="info-intro">
+    <h1 class="info-kicker">Info</h1>
+    <p class="info-lede">I paint in oil, outdoors and from sight.</p>
+    <p class="info-sub">Most of my paintings are of streets and buildings around Boston and Northampton, Massachusetts.</p>
+    <div class="info-more">
+      <p>I studied painting at Massachusetts College of Art and Design (BFA) and at the Art Students League of New York.</p>
+      <p>I also work as a designer. I am a Principal Interaction Designer at Lexia Learning, and before that I spent many years as an artist and art director in games.</p>
+    </div>
+  </div>
+</div>
+<section class="info-shows" aria-labelledby="exhibitions-title">
+  <h2 id="exhibitions-title">Exhibitions</h2>
+  <ol class="shows">
+    <li class="next"><span class="yr">2026</span><p><span class="t">Think Small</span><span class="v">Bromfield Gallery, Boston</span><span class="v">December 2 to 20. <strong>Coming up</strong></span></p></li>
+    <li><span class="yr">2015</span><p><span class="t">MassArt Auction</span><span class="v">26th annual, Boston</span></p></li>
+    <li><span class="yr">2009</span><p><span class="t">Hosmer Gallery</span><span class="v">Northampton. Three-person show with Emily Bradford and Sarah Adam.</span></p></li>
+    <li><span class="yr">2009</span><p><span class="t">RANGE</span><span class="v">Storefront Artist Project, Pittsfield</span></p></li>
+    <li><span class="yr yr-word">Collection</span><p><span class="t">Forbes Library</span><span class="v">Northampton. Permanent collection (Downtown Northampton).</span></p></li>
+  </ol>
+</section>
+<section class="info-contact" id="contact" aria-labelledby="contact-title">
+  <div class="chips" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="contact-inner">
+    <div class="contact-intro">
+      <h2 id="contact-title">Contact</h2>
+      <p>Ask about a painting or a print. I reply by email.</p>
+    </div>
+    <form class="form" name="inquiry" method="POST" action="thanks.html" data-netlify="true" netlify-honeypot="company">
+    <input type="hidden" name="form-name" value="inquiry">
+    <p class="vh"><label for="company">Leave this field empty</label><input id="company" name="company" type="text" tabindex="-1" autocomplete="off"></p>
+    <div><label for="name">Name</label><input id="name" name="name" type="text" autocomplete="name" required></div>
+    <div><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required></div>
+    <div><label for="about">Painting or print <span class="opt">(optional)</span></label><input id="about" name="about" type="text" autocomplete="off"></div>
+    <div><label for="message">Message</label><textarea id="message" name="message" required></textarea></div>
+    <button type="submit">Send</button>
+    </form>
+  </div>
+</section>
+</main>
+<footer class="site-foot">
+<p>© 2026 Mat Matera</p>
+<nav aria-label="Elsewhere"><a href="https://www.linkedin.com/in/matmatera" rel="noopener">LinkedIn</a></nav>
+</footer>
+<a class="float-prints" href="https://www.etsy.com/shop/MatMateraArt" rel="noopener">Prints on Etsy</a>
+<script src="site.js" defer></script>
+</body>
+</html>

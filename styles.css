@@ -1,0 +1,196 @@
+/* matmatera.com. A white wall: one typeface, black text, the paintings carry the color.
+   House rules: no rounded corners, shadows, gradients, pills, cards, blur, or scroll animation.
+   One exception: in dark mode only, each Artwork section opens with a black-to-charcoal fade (see --fade). */
+:root {
+  --bg: #fff;
+  --ink: #111;
+  --grey: #666;          /* 5.7:1 on white */
+  --rule: #ddd;
+  color-scheme: light;
+  --pad: 20px;
+  --max: 1240px;
+  --text: 34rem;         /* reading column */
+  --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --view-bg: var(--bg);  /* large painting view */
+  --fade: none;          /* Artwork section fade, dark mode only */
+  --fade-soft: none;     /* Info section fade, dark mode only */
+  --band: #ece8e2;       /* Info: hard-edged pale warm stone behind Contact, light mode only */
+}
+/* Dark wall. Follows the device setting; the footer switch overrides it and is remembered.
+   The wall stays a neutral charcoal so it doesn't tint the paintings; the type and rules carry a
+   slight warm cast (soft off-white, not pure white). Grey is lifted to about 9.5:1 on the wall so captions
+   stay crisp; rules are a step lighter so section lines read. */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #121212; --ink: #f2eee8; --grey: #c2bbb1; --rule: #4a443d; --view-bg: #000; --fade: linear-gradient(rgba(0,0,0,0) 0, rgba(0,0,0,.35) 8px, rgba(0,0,0,.8) 22px, #000 40px, rgba(0,0,0,.72) 18%, rgba(0,0,0,.42) 42%, rgba(0,0,0,.16) 70%, rgba(0,0,0,0) 100%); --fade-soft: var(--fade); --band: transparent; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #121212; --ink: #f2eee8; --grey: #c2bbb1; --rule: #4a443d; --view-bg: #000; --fade: linear-gradient(rgba(0,0,0,0) 0, rgba(0,0,0,.35) 8px, rgba(0,0,0,.8) 22px, #000 40px, rgba(0,0,0,.72) 18%, rgba(0,0,0,.42) 42%, rgba(0,0,0,.16) 70%, rgba(0,0,0,0) 100%); --fade-soft: var(--fade); --band: transparent; color-scheme: dark; }
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 1rem/1.5 var(--font); }
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-decoration: underline; text-underline-offset: .18em; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+h1, h2, h3, p, figure, ul, dl, dd { margin: 0; }
+h1, h2, h3 { font-weight: 400; font-size: 1rem; }
+ul { padding: 0; list-style: none; }
+
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: var(--pad); top: 8px; background: var(--bg); padding: 8px; z-index: 2; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Shell */
+.site-head, main, .site-foot { max-width: var(--max); margin: 0 auto; padding-left: var(--pad); padding-right: var(--pad); }
+.site-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 32px; padding-top: 24px; padding-bottom: 24px; }
+.site-name { padding: 7px 0; font-size: 1.25rem; text-decoration: none; letter-spacing: .01em; }
+.site-head nav { display: flex; gap: 24px; }
+.site-head nav a { text-decoration: none; padding: 10px 0; }
+.site-head nav a:hover, .site-head nav a[aria-current="page"] { text-decoration: underline; }
+main { padding-bottom: 96px; }
+.site-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 32px; align-items: baseline; padding-top: 12px; padding-bottom: 28px; border-top: 1px solid var(--rule); font-size: .875rem; color: var(--grey); }
+.site-foot nav { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.site-foot a { padding: 12px 0; }
+
+/* Text */
+.grey { color: var(--grey); }
+.small { font-size: .875rem; }
+.prose { max-width: var(--text); }
+.prose p + p { margin-top: 1em; }
+.section { padding-top: 72px; }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 12px; margin-bottom: 28px; border-bottom: 1px solid var(--ink); }
+.section-head h2 { font-size: 1rem; }
+.page-title { padding: 24px 0 0; font-size: 1.25rem; }
+
+/* Notice line (the show) */
+.notice { padding: 12px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+
+/* Artwork grid: every image keeps its own proportions, captions sit under it */
+.works { display: grid; grid-template-columns: 1fr; gap: 48px 32px; align-items: start; }
+@media (min-width: 560px) { .works { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 960px) { .works { grid-template-columns: repeat(3, 1fr); gap: 64px 40px; } }
+.work a.zoom { display: block; cursor: zoom-in; }
+.work img { width: 100%; max-width: min(100%, var(--w, 100%)); }  /* --w is the file's own width, so no image is enlarged */
+.work figcaption, .caption { padding-top: 10px; font-size: .875rem; line-height: 1.45; }
+.caption .t, .work figcaption .t { display: block; font-size: 1rem; }
+.caption .m, .work figcaption .m { display: block; color: var(--grey); }
+
+/* Lead image on Home */
+.lead { padding-top: 8px; }
+.lead img { width: auto; max-width: 100%; max-height: min(calc(100vh - 210px), 720px); }
+/* Dark mode, Artwork page: each section is pure black from just under its heading line down (the soft fall-off
+   starts 28px above the line and reaches full black about 12px below it), then eases down into the
+   charcoal wall, full width. Eased stops keep the fade from banding. The band sits behind the paintings. */
+:is(#oils, #pastels, #charcoal, #digital) > .section-head { position: relative; }
+:is(#oils, #pastels, #charcoal, #digital) > .section-head::after { content: ""; position: absolute; z-index: -1; top: calc(100% - 28px); left: 50%; width: 100vw; height: calc(min(85vh, 760px) + 28px); transform: translateX(-50%); background: var(--fade); pointer-events: none; }
+body { overflow-x: clip; }  /* the 100vw band must not add a sideways scroll */
+
+/* Plain action link: text and an arrow, never a button shape */
+.act { display: inline-block; padding: 10px 0; }
+.act::after { content: " \2192"; }
+
+/* Large view */
+dialog.view { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: var(--view-bg); color: var(--ink); }
+dialog.view::backdrop { background: var(--view-bg); }
+.view-inner { display: grid; grid-template-rows: auto 1fr auto; height: 100%; padding: 12px var(--pad) 20px; gap: 12px; }
+.view-stage { min-height: 0; display: grid; place-items: center; }
+.view-stage img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+.view-cap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 24px; font-size: .875rem; }
+
+/* Form */
+.form { max-width: var(--text); display: grid; gap: 20px; }
+.form label { display: block; font-size: .875rem; padding-bottom: 6px; }
+.form input, .form textarea { width: 100%; font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--ink); border-radius: 0; padding: 10px 12px; }
+.form textarea { min-height: 9rem; resize: vertical; }
+.form button { justify-self: start; font: inherit; color: var(--bg); background: var(--ink); border: 1px solid var(--ink); border-radius: 0; padding: 12px 28px; min-height: 44px; cursor: pointer; }
+.form button:hover { background: var(--bg); color: var(--ink); }
+
+@media (min-width: 800px) {
+  :root { --pad: 40px; }
+  .site-head { padding-top: 36px; padding-bottom: 36px; }
+  .section { padding-top: 104px; }
+}
+/* PAGE STYLES BELOW: builders add page-specific rules under here, following the house rules above. */
+
+/* Builder 1 */
+.lead a.zoom { display: inline-block; vertical-align: top; cursor: zoom-in; }
+
+.section-head .act { margin: -10px 0; }
+.intro { max-width: var(--text); padding: 24px 0 40px; }
+.intro + .works { padding-top: 8px; }
+.pair { display: grid; gap: 32px 40px; }
+.pair p { max-width: 26rem; }
+@media (min-width: 560px) { .pair { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 960px) { .pair { grid-template-columns: repeat(3, 1fr); } }
+.work figcaption .act { padding: 12px 0; margin-bottom: -12px; }
+/* The stage is a 1fr grid row, so a percentage max-height has nothing to resolve against.
+   Pin the image to the stage instead; scale-down fits it whole and never enlarges it. */
+/* No top bar: the picture starts near the top edge. The close button sits in the corner, over the right-hand
+   arrow column, and Previous / Next sit at the left and right edges of the stage. */
+.view-inner { position: relative; grid-template-rows: minmax(0, 1fr) auto; padding: 8px var(--pad) 16px; gap: 8px; }
+.view-main { position: relative; min-height: 0; }
+.view-main .view-stage { position: absolute; inset: 0 56px; }
+.view-step { position: absolute; top: 50%; width: 44px; height: 96px; margin: -48px 0 0; padding: 0; display: grid; place-items: center; font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.view-step.prev { left: 0; }
+.view-step.next { right: 0; }
+.view-step[hidden] { display: none; }
+.view-step svg { display: block; width: 24px; height: 40px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: square; stroke-linejoin: miter; }
+.view-step:hover svg { stroke-width: 2.5; }
+.view-count { margin-left: auto; }
+@media (max-width: 699px) { .view-main .view-stage { inset: 0 36px; } .view-step { width: 36px; } }
+.view-stage { position: relative; }
+.view-stage img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; object-fit: scale-down; }
+/* Zoom in the large view: pinch, double-tap or double-click; drag to move around. The stage clips the
+   enlarged picture and takes the gestures itself, so the browser does not zoom the whole page instead. */
+.view-stage { overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; }
+.view-stage img { cursor: zoom-in; transform-origin: 50% 50%; }
+.view-stage.zoomed img { cursor: grab; }
+@media (prefers-reduced-motion: no-preference) { .view-stage.ease img { transition: transform .18s ease-out; } }
+/* Close: an X in a circle, the one round shape on the site. Fills on hover. */
+.view-close { position: absolute; top: 4px; right: var(--pad); z-index: 1; margin: 0; padding: 0; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; font: inherit; color: inherit; background: none; border: 0; cursor: pointer; text-decoration: none; }
+.view-close svg { display: block; width: 44px; height: 44px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: square; }
+.view-close:hover circle { fill: var(--ink); }
+.view-close:hover path { stroke: var(--bg); }
+.view-cap p { margin: 0; }
+.view-links { display: flex; flex-wrap: wrap; gap: 0 24px; }
+.view-links a { padding: 10px 0; }
+
+/* Lead: Home top. The show details sit beside the lead painting on wide screens, under it on phones. */
+.home-top { display: grid; gap: 40px; }
+.notice { border-bottom: 0; padding: 12px 0 0; max-width: 22rem; }
+.notice a { display: inline-block; padding: 10px 0; }
+.notice h2 { color: var(--grey); font-size: .875rem; padding-bottom: 8px; }
+@media (min-width: 960px) {
+  .home-top { grid-template-columns: auto minmax(16rem, 1fr); gap: 64px; align-items: end; }
+  .home-top .notice { margin-bottom: 3.6rem; }
+}
+
+/* Theme switch in the footer: a text button that looks like the links beside it */
+.theme-switch { font: inherit; color: inherit; background: none; border: 0; padding: 12px 0; min-width: 44px; text-align: right; cursor: pointer; text-decoration: underline; text-underline-offset: .18em; text-decoration-thickness: 1px; }
+.theme-switch:hover { text-decoration-thickness: 2px; }
+
+/* "Top" link at the end of each Artwork section: plain text, left under the last row. */
+.to-top { padding-top: 8px; margin-bottom: -32px; text-align: right; }  /* the negative margin pulls the next section up: its own top padding was a big gap */
+.to-top a { display: inline-block; padding: 10px 0; color: var(--grey); }
+.to-top a:hover { color: var(--ink); }
+@media (min-width: 800px) { .to-top { margin-bottom: -56px; } }
+.to-top a::before { content: "\2191\00a0"; }
+
+/* Floating link to the Etsy shop, bottom right on every page (Mat's request). A plain bordered label. */
+.float-prints { position: fixed; right: 16px; bottom: 16px; z-index: 1; padding: 11px 16px; background: var(--bg); border: 1px solid var(--ink); text-decoration: none; font-size: .875rem; line-height: 1.4; }
+.float-prints::after { content: " \2192"; }
+.float-prints:hover { background: var(--ink); color: var(--bg); }
+.site-foot { padding-bottom: 84px; }
+@media (min-width: 800px) { .float-prints { right: 24px; bottom: 24px; } }
+@media print { .float-prints { display: none; } }
+
+/* Artwork page: the Artwork link in the header opens into the mediums (Mat's request), replacing the old
+   list of sections under the page title. They unfold right to left from where Artwork sat, once, on arrival. */
+.site-head nav { flex-wrap: wrap; gap: 0 24px; }
+.nav-art { display: flex; flex-wrap: wrap; gap: 0 24px; }
+/* No visible page title on Artwork, so the first section starts right under the header. */
+.vh + .section { padding-top: 8px; }
+@keyframes nav-open { from { opacity: 0; transform: translateX(20px); } }
+@media (prefers-reduced-motion: no-preference) {
+  .nav-art a { animation: nav-open .36s cubic-bezier(.2, .7, .2, 1) backwards; }
+  .nav-art a:nth-last-child(2) { animation-delay: .07s; }
+  .nav-art a:nth-last-child(3) { animation-delay: .14s; }
+  .nav-art a:nth-last-child(4) { animation-delay: .21s; }
+}

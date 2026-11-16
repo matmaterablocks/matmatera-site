@@ -1,0 +1,42 @@
+/* Artwork page only. The wall stays white (dark mode: charcoal) so nothing tints the paintings; the color from
+   the Info page comes in around them: blue-black type, a colored rule for each medium, peach Top links, and
+   the deep blue band with the painting's swatch strip at the bottom. Hard edges, no gradients. */
+:root {
+  --ink: #1d3341;
+  --grey: #56636b;
+  --accent: #b5512a;
+  --band: #1d4155;
+  --band-ink: #f4eee3;
+  --band-soft: #c9d5d9;
+  --r-oils: #b5512a; --r-pastels: #3f86b8; --r-charcoal: #1d3341; --r-digital: #8f8446;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --accent: #eea77e; --r-oils: #eea77e; --r-pastels: #81c2ed; --r-charcoal: #e1dddf; --r-digital: #b1a66e; } }
+:root[data-theme="dark"] {
+  --accent: #eea77e; --r-oils: #eea77e; --r-pastels: #81c2ed; --r-charcoal: #e1dddf; --r-digital: #b1a66e; }
+
+/* Section heads: larger names over a thick rule in a color taken from the paintings, one per medium. */
+:is(#oils, #pastels, #charcoal, #digital) > .section-head { border-bottom: 3px solid var(--rule-c, var(--ink)); padding-bottom: 14px; }
+:is(#oils, #pastels, #charcoal, #digital) > .section-head h2 { font-size: 1.75rem; letter-spacing: -.01em; line-height: 1.1; }
+#oils { --rule-c: var(--r-oils); }
+#pastels { --rule-c: var(--r-pastels); }
+#charcoal { --rule-c: var(--r-charcoal); }
+#digital { --rule-c: var(--r-digital); }
+
+/* Header: the medium links pick up the accent on hover. */
+.nav-art a:hover { color: var(--accent); }
+
+/* Top links in burnt peach. */
+.to-top a { color: var(--accent); }
+.to-top a:hover { color: var(--ink); }
+
+/* Bottom: the two ways to buy sit on the deep blue band, full width down to the footer, opened by the swatch strip. */
+main:has(> .pair:last-child) { padding-bottom: 0; }
+main > .pair:last-child { position: relative; margin-top: 120px; padding: 86px 0 112px; color: var(--band-ink); }
+main > .pair:last-child::before { content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); background: var(--band); }
+main > .pair:last-child::after { content: ""; position: absolute; top: 0; left: 50%; width: 100vw; height: 14px; transform: translateX(-50%);
+  background: linear-gradient(90deg, #81c2ed 0 22%, #f3c7b4 22% 28%, #eea77e 28% 39%, #e1dddf 39% 45%, #b1a66e 45% 62%, #465b54 62% 72%, #73c9f3 72% 100%); }
+main > .pair:last-child p { font-size: 1.125rem; line-height: 1.45; color: var(--band-soft); }
+main > .pair:last-child .act { color: var(--band-ink); font-size: 1.125rem; }
+main > .pair:last-child :focus-visible { outline-color: #eea77e; }
+@media (min-width: 800px) { main > .pair:last-child { padding: 104px 0 136px; } }
