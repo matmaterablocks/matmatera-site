@@ -11,9 +11,9 @@
   --r-oils: #b5512a; --r-pastels: #3f86b8; --r-charcoal: #1d3341; --r-digital: #8f8446;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --accent: #eea77e; --r-oils: #eea77e; --r-pastels: #81c2ed; --r-charcoal: #e1dddf; --r-digital: #b1a66e; } }
+  --ink: #f2eee8; --grey: #c2bbb1; --accent: #eea77e; --r-oils: #eea77e; --r-pastels: #81c2ed; --r-charcoal: #e1dddf; --r-digital: #b1a66e; } }
 :root[data-theme="dark"] {
-  --accent: #eea77e; --r-oils: #eea77e; --r-pastels: #81c2ed; --r-charcoal: #e1dddf; --r-digital: #b1a66e; }
+  --ink: #f2eee8; --grey: #c2bbb1; --accent: #eea77e; --r-oils: #eea77e; --r-pastels: #81c2ed; --r-charcoal: #e1dddf; --r-digital: #b1a66e; }
 
 /* Section heads: larger names over a thick rule in a color taken from the paintings, one per medium. */
 :is(#oils, #pastels, #charcoal, #digital) > .section-head { border-bottom: 3px solid var(--rule-c, var(--ink)); padding-bottom: 14px; }

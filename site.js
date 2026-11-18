@@ -34,10 +34,12 @@
     var cap = el('div', 'view-cap');
     var text = el('p');
     var links = el('p', 'view-links');
+    var inquire = el('a', '', 'Inquire about original');
     var buy = el('a', '', 'Buy a print');
     buy.rel = 'noopener';
     stage.appendChild(image);
     main.appendChild(stage); main.appendChild(prev); main.appendChild(next);
+    links.appendChild(inquire);
     links.appendChild(buy);
     cap.appendChild(text); cap.appendChild(links); cap.appendChild(count);
     inner.appendChild(close); inner.appendChild(main); inner.appendChild(cap);
@@ -71,6 +73,13 @@
       text.textContent = '';
       text.appendChild(document.createTextNode(title));
       if (medium) text.appendChild(el('span', 'grey', ', ' + medium));
+      var isDigital = (medium && medium.toLowerCase().indexOf('digital') !== -1) || (a.closest && !!a.closest('#digital'));
+      inquire.hidden = isDigital;
+      if (!isDigital) {
+        inquire.href = 'info.html?about=' + encodeURIComponent(title) + '#contact';
+      } else {
+        inquire.removeAttribute('href');
+      }
       var print = a.getAttribute('data-print');
       buy.hidden = !print;
       if (print) buy.href = print; else buy.removeAttribute('href');

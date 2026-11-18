@@ -11,8 +11,8 @@
   --peach: #eea77e;
   --strip: linear-gradient(90deg, #81c2ed 0 22%, #f3c7b4 22% 28%, #eea77e 28% 39%, #e1dddf 39% 45%, #b1a66e 45% 62%, #465b54 62% 72%, #73c9f3 72% 100%); /* hard stops: blocks, not a fade */
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --accent: #eea77e; } }
-:root[data-theme="dark"] { --accent: #eea77e; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ink: #f2eee8; --grey: #c2bbb1; --accent: #eea77e; } }
+:root[data-theme="dark"] { --ink: #f2eee8; --grey: #c2bbb1; --accent: #eea77e; }
 
 /* The show: a deep blue block with the title set large. */
 .home-top .notice { position: relative; max-width: 24rem; padding: 40px 32px 32px; border: 0; background: var(--band); color: var(--band-ink); }

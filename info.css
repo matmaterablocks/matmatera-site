@@ -84,6 +84,7 @@ main:has(.info-contact) { padding-bottom: 0; }
 .contact-inner { max-width: var(--max); margin: 0 auto; padding: 72px var(--pad) 120px; display: grid; gap: 40px; }
 .contact-intro h2 { font-size: 1.75rem; letter-spacing: -.01em; padding-bottom: 12px; }
 .contact-intro p { max-width: 20rem; color: var(--band-soft); font-size: 1.125rem; line-height: 1.45; }
+.contact-intro a { color: var(--band-ink); }
 .info-contact .form { margin: 0; }
 .info-contact .form label { color: var(--band-ink); }
 .info-contact .opt { color: var(--band-soft); }
