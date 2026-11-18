@@ -1,0 +1,81 @@
+name: One-time - organize assets
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  organize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Move assets into section folders and update pages
+        run: |
+          set -e
+          mkdir -p assets/paintings assets/drawings
+          mv_ref() { git mv "$1" "$2"; sed -i "s|\"$1\"|\"$2\"|g" index.html artwork.html; }
+          for f in 745-boylston-st donuts moka-pot cow-head street-panorama red-building lioncub-ice-cream-co; do
+            mv_ref assets/art/$f.webp assets/paintings/$f.webp
+          done
+          mv_ref assets/img-008.webp assets/paintings/calvin-theater.webp
+          mv_ref assets/img-009.webp assets/paintings/joes-pizza.webp
+          mv_ref assets/img-010.webp assets/paintings/downtown.webp
+          mv_ref assets/img-011.webp assets/paintings/south-station.webp
+          mv_ref assets/img-012.webp assets/paintings/tea-kettle.webp
+          mv_ref assets/art/charcoal-drawing-cropped.webp assets/drawings/self-portrait.webp
+          n=1; for i in 23 24 25 26 27 28 29; do
+            mv_ref assets/img-0$i.webp assets/drawings/figure-study-$n.webp; n=$((n+1))
+          done
+          git mv assets/brookline assets/pastels
+          sed -i 's|"assets/brookline/|"assets/pastels/|g' artwork.html
+          # duplicate Sleeping Cat: keep the larger copy
+          git rm -q assets/digital/sleeping-cat-ipad.webp
+          sed -i '/assets\/digital\/sleeping-cat-ipad.webp/d' artwork.html
+          mv_ref assets/img-015.webp assets/digital/sleeping-cat.webp
+          sed -i 's|- Images live in `assets/`.|- Images live in `assets/`, one folder per section: `paintings/`, `pastels/`, `drawings/` and `digital/`, plus `info/` for the Info page.|' README.md
+          python3 - <<'PY'
+          def edit(path, reps):
+              s = open(path, newline='').read()
+              nl = '\r\n' if '\r\n' in s else '\n'
+              for a, b in reps:
+                  a, b = a.replace('\n', nl), b.replace('\n', nl)
+                  assert s.count(a) == 1, (path, a)
+                  s = s.replace(a, b)
+              open(path, 'w', newline='').write(s)
+
+          edit('scripts/sync_drive_artwork.py', [
+           ('  2. Saves into assets/art/<slug>.webp',
+            '  2. Saves into the section folder: assets/paintings, assets/pastels, assets/drawings or assets/digital'),
+           ('ASSETS_ART_DIR = ROOT_DIR / "assets" / "art"\n',
+            'ASSETS_DIR = ROOT_DIR / "assets"\n# Section id in artwork.html -> (asset folder, word used in alt text)\nSECTION_FOLDERS = {\n    "oils": ("paintings", "painting"),\n    "pastels": ("pastels", "pastel"),\n    "charcoal": ("drawings", "drawing"),\n    "digital": ("digital", "digital painting"),\n}\n'),
+           ('def build_figure_html(slug: str,', 'def build_figure_html(src: str,'),
+           ('    esc_slug = escape_html(slug)\n', '    esc_src = escape_html(src)\n'),
+           ('href="assets/art/{esc_slug}.webp"', 'href="{esc_src}"'),
+           ('<img src="assets/art/{esc_slug}.webp"', '<img src="{esc_src}"'),
+           ('        if not alt:\n            alt = f"{medium} painting by Mat Matera titled {title}"',
+            '        section_id = resolve_section_id(section)\n        folder, kind = SECTION_FOLDERS[section_id]\n        art_dir = ASSETS_DIR / folder\n        art_dir.mkdir(parents=True, exist_ok=True)\n\n        if not alt:\n            alt = f"{medium} {kind} by Mat Matera titled {title}"'),
+           ('        dest_path = ASSETS_ART_DIR / f"{slug}.webp"\n\n', '        dest_path = art_dir / f"{slug}.webp"\n\n'),
+           ('            dest_path = ASSETS_ART_DIR / f"{slug}.webp"\n', '            dest_path = art_dir / f"{slug}.webp"\n'),
+           ('        section_id = resolve_section_id(section)\n        figure_html = build_figure_html(slug,',
+            '        figure_html = build_figure_html(f"assets/{folder}/{slug}.webp",'),
+          ])
+          edit('ANTIGRAVITY.md', [
+           ('2. **Metadata Notes**:', '2. **Metadata Notes** (include a `Title:` line, or the title is guessed from the file name):'),
+           ("into `assets/art/<slug>.webp`.", "into the section's folder: `assets/paintings/`, `assets/pastels/`, `assets/drawings/` or `assets/digital/`."),
+          ])
+          PY
+          for f in $(grep -oh 'assets/[^"]*\.webp' *.html | sort -u); do
+            [ -f "$f" ] || { echo "Missing $f"; exit 1; }
+          done
+          git add -A
+          git status --short
+
+      - name: Commit and push
+        run: |
+          git config user.name "Mat Matera"
+          git config user.email "matmatera@gmail.com"
+          git commit -q -m "Organize assets into paintings, pastels, drawings and digital folders"
+          git push origin main
