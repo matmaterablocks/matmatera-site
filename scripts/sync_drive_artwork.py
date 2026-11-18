@@ -419,7 +419,7 @@ def sync():
         art_dir.mkdir(parents=True, exist_ok=True)
 
         if not alt:
-            alt = f"{medium} {kind} by Mat Matera titled {title}"
+            alt = f"{title}, {medium[:1].lower() + medium[1:]}, by Mat Matera"
             if dimensions:
                 alt += f" ({dimensions})"
 
