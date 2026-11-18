@@ -7,7 +7,7 @@ for new paintings/artwork images and accompanying metadata notes.
 
 For each new artwork:
   1. Downloads and converts image to optimized .webp (max 1600px longest edge, q=82)
-  2. Saves into assets/art/<slug>.webp
+  2. Saves into the section folder: assets/paintings, assets/pastels, assets/drawings or assets/digital
   3. Inserts a new <figure class="work"> at the top of the matching section in artwork.html
      (and in index.html if it is an oil painting / Paintings section)
   4. Moves processed Drive files into a "processed" subfolder inside "matmatera-incoming"
@@ -34,7 +34,14 @@ except ImportError:
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
 ROOT_DIR = Path(__file__).resolve().parent.parent
-ASSETS_ART_DIR = ROOT_DIR / "assets" / "art"
+ASSETS_DIR = ROOT_DIR / "assets"
+# Section id in artwork.html -> (asset folder, word used in alt text)
+SECTION_FOLDERS = {
+    "oils": ("paintings", "painting"),
+    "pastels": ("pastels", "pastel"),
+    "charcoal": ("drawings", "drawing"),
+    "digital": ("digital", "digital painting"),
+}
 ARTWORK_HTML = ROOT_DIR / "artwork.html"
 INDEX_HTML = ROOT_DIR / "index.html"
 
@@ -261,17 +268,17 @@ def resolve_section_id(section_name: str) -> str:
     return "oils"
 
 
-def build_figure_html(slug: str, title: str, medium: str, alt: str, width: int, height: int) -> str:
+def build_figure_html(src: str, title: str, medium: str, alt: str, width: int, height: int) -> str:
     """Construct HTML figure block matching the existing site pattern."""
-    esc_slug = escape_html(slug)
+    esc_src = escape_html(src)
     esc_title = escape_html(title)
     esc_medium = escape_html(medium)
     esc_alt = escape_html(alt)
 
     return (
         f'<figure class="work">'
-        f'<a class="zoom" href="assets/art/{esc_slug}.webp" data-title="{esc_title}" data-medium="{esc_medium}">'
-        f'<img src="assets/art/{esc_slug}.webp" alt="{esc_alt}" width="{width}" height="{height}" '
+        f'<a class="zoom" href="{esc_src}" data-title="{esc_title}" data-medium="{esc_medium}">'
+        f'<img src="{esc_src}" alt="{esc_alt}" width="{width}" height="{height}" '
         f'style="--w:{width}px" loading="lazy" decoding="async"></a>'
         f'<figcaption><span class="t">{esc_title}</span><span class="m">{esc_medium}</span></figcaption>'
         f"</figure>"
@@ -406,20 +413,25 @@ def sync():
         dimensions = metadata["dimensions"]
         alt = metadata["alt"]
 
+        section_id = resolve_section_id(section)
+        folder, kind = SECTION_FOLDERS[section_id]
+        art_dir = ASSETS_DIR / folder
+        art_dir.mkdir(parents=True, exist_ok=True)
+
         if not alt:
-            alt = f"{medium} painting by Mat Matera titled {title}"
+            alt = f"{medium} {kind} by Mat Matera titled {title}"
             if dimensions:
                 alt += f" ({dimensions})"
 
         slug_base = slugify(title) or slugify(stem)
         slug = slug_base
-        dest_path = ASSETS_ART_DIR / f"{slug}.webp"
+        dest_path = art_dir / f"{slug}.webp"
 
         # Avoid filename collisions with existing assets
         counter = 2
         while dest_path.exists():
             slug = f"{slug_base}-{counter}"
-            dest_path = ASSETS_ART_DIR / f"{slug}.webp"
+            dest_path = art_dir / f"{slug}.webp"
             counter += 1
 
         print(f"Downloading {img_name}...")
@@ -428,8 +440,7 @@ def sync():
         print(f"Optimizing to WebP ({dest_path.name})...")
         width, height = optimize_image(img_bytes, dest_path)
 
-        section_id = resolve_section_id(section)
-        figure_html = build_figure_html(slug, title, medium, alt, width, height)
+        figure_html = build_figure_html(f"assets/{folder}/{slug}.webp", title, medium, alt, width, height)
 
         print(f"Updating artwork.html (section: {section_id})...")
         insert_into_artwork_html(figure_html, section_id)

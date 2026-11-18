@@ -11,12 +11,12 @@ An automated GitHub Actions workflow (`.github/workflows/publish-art.yml`) perio
 ## Automated Publishing Pipeline (Google Drive -> GitHub -> Netlify)
 
 1. **Incoming Folder**: `matmatera-incoming` in Google Drive.
-2. **Metadata Notes**: Uploading an image along with a `.txt`, `.md`, or `.json` file of the same name (or key-value lines: `Title`, `Medium`, `Dimensions`, `Section`, `Alt`) triggers ingestion.
+2. **Metadata Notes** (include a `Title:` line, or the title is guessed from the file name): Uploading an image along with a `.txt`, `.md`, or `.json` file of the same name (or key-value lines: `Title`, `Medium`, `Dimensions`, `Section`, `Alt`) triggers ingestion.
    - Default Section: `Paintings` (maps to `#oils` in `artwork.html` and adds to `index.html`).
    - Other Sections: `Pastels` (`#pastels`), `Drawings` (`#charcoal`), `Digital` (`#digital`).
 3. **Image Optimization**:
    - Resized so the longest edge is at most 1600px.
-   - Saved as `.webp` (quality 82) into `assets/art/<slug>.webp`.
+   - Saved as `.webp` (quality 82) into the section's folder: `assets/paintings/`, `assets/pastels/`, `assets/drawings/` or `assets/digital/`.
 4. **HTML Injection**:
    - Prepends a `<figure class="work">` block to the top of `<div class="works">` in the matching section in `artwork.html` (and `index.html` if oil painting).
 5. **Google Drive Archival**:
