@@ -46,7 +46,7 @@ jobs:
           if [ -n "$(git status --porcelain)" ]; then
             git config user.name "Mat Matera (Drive Sync)"
             git config user.email "matmatera@gmail.com"
-            git add assets/art/ artwork.html index.html
+            git add assets/ artwork.html index.html
             git commit -m "Auto-publish new artwork from Google Drive"
             git push origin main
           else
