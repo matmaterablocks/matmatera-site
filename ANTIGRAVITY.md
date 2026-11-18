@@ -6,6 +6,9 @@
 ### Why
 An automated GitHub Actions workflow (`.github/workflows/publish-art.yml`) periodically syncs new paintings from Google Drive ("matmatera-incoming") directly to the `main` branch. Pulling `origin main` at the start of every session prevents merge conflicts and ensures your local workspace is always up-to-date with newly published artwork.
 
+## Titling Rule
+**Never give works numbered series titles** (e.g. "Figure Study I, II, III" or "Study 1, 2, 3"). Removing one piece leaves a visible gap in the sequence. Repeated subjects share a plain title (e.g. "Figure Study") or get a descriptive title from Mat.
+
 ---
 
 ## Automated Publishing Pipeline (Google Drive -> GitHub -> Netlify)
