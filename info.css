@@ -91,6 +91,9 @@ main:has(.info-contact) { padding-bottom: 0; }
 .info-contact .form input, .info-contact .form textarea { background: var(--field-bg); color: var(--field-ink); border-color: var(--band-ink); }
 .info-contact .form button { background: var(--peach); color: #1d3341; border-color: var(--peach); }
 .info-contact .form button:hover { background: var(--band-ink); border-color: var(--band-ink); color: #1d3341; }
+.contact-email { align-self: end; margin: 0; }
+.contact-email a { display: inline-block; font-size: clamp(1.25rem, 3.2vw, 2rem); letter-spacing: -.01em; padding: 14px 22px; background: var(--peach); color: #1d3341; text-decoration: none; border: 1px solid var(--peach); }
+.contact-email a:hover { background: var(--band-ink); border-color: var(--band-ink); }
 .info-contact :focus-visible { outline-color: var(--peach); }
 @media (min-width: 960px) {
   .contact-inner { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 40px; padding-top: 104px; padding-bottom: 152px; }

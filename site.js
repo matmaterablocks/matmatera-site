@@ -76,7 +76,7 @@
       var isDigital = (medium && medium.toLowerCase().indexOf('digital') !== -1) || (a.closest && !!a.closest('#digital'));
       inquire.hidden = isDigital;
       if (!isDigital) {
-        inquire.href = 'info.html?about=' + encodeURIComponent(title) + '#contact';
+        inquire.href = 'mailto:matmatera@gmail.com?subject=' + encodeURIComponent('Inquiry: ' + title);
       } else {
         inquire.removeAttribute('href');
       }

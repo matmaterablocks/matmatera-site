@@ -2,9 +2,10 @@ name: Sync Artwork from Google Drive
 
 on:
   schedule:
-    # Every 15 minutes, offset from the top of the hour (GitHub drops
-    # many :00/:15/:30/:45 scheduled runs when its queue is busy)
-    - cron: '7,22,37,52 * * * *'
+    # Hourly, offset from the top of the hour (GitHub drops many :00
+    # scheduled runs when its queue is busy). Hourly keeps a private repo
+    # well inside GitHub Free's 2,000 Actions minutes a month.
+    - cron: '7 * * * *'
   workflow_dispatch:
 
 concurrency:
