@@ -42,6 +42,10 @@ jobs:
         run: |
           python scripts/sync_drive_artwork.py
 
+      - name: Make grid-size versions of new images
+        run: |
+          python scripts/make_thumbs.py
+
       - name: Commit and push changes
         run: |
           if [ -n "$(git status --porcelain)" ]; then

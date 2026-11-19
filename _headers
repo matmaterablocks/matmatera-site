@@ -1,0 +1,14 @@
+# Cloudflare Pages response headers (Netlify reads this file too).
+# Images are cached for a day, so a replaced image shows up for returning visitors within 24 hours.
+/assets/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/*.css
+  Cache-Control: public, max-age=3600
+
+/*.js
+  Cache-Control: public, max-age=3600
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
