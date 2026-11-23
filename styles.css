@@ -166,20 +166,17 @@ dialog.view::backdrop { background: var(--view-bg); }
 .theme-switch { font: inherit; color: inherit; background: none; border: 0; padding: 12px 0; min-width: 44px; text-align: right; cursor: pointer; text-decoration: underline; text-underline-offset: .18em; text-decoration-thickness: 1px; }
 .theme-switch:hover { text-decoration-thickness: 2px; }
 
-/* "Top" link at the end of each Artwork section: plain text, left under the last row. */
-.to-top { padding-top: 8px; margin-bottom: -32px; text-align: right; }  /* the negative margin pulls the next section up: its own top padding was a big gap */
-.to-top a { display: inline-block; padding: 10px 0; color: var(--grey); }
-.to-top a:hover { color: var(--ink); }
-@media (min-width: 800px) { .to-top { margin-bottom: -56px; } }
-.to-top a::before { content: "\2191\00a0"; }
-
-/* Floating link to the Etsy shop, bottom right on every page (Mat's request). A plain bordered label. */
-.float-prints { position: fixed; right: 16px; bottom: 16px; z-index: 1; padding: 11px 16px; background: var(--bg); border: 1px solid var(--ink); text-decoration: none; font-size: .875rem; line-height: 1.4; }
+/* Floating links, bottom right on every page (Mat's request): Top, then Prints on Etsy. Plain bordered labels.
+   Top replaces the old Top links at the end of each Artwork section; it shows once the page is scrolled. */
+.float-bar { position: fixed; right: 16px; bottom: 16px; z-index: 1; display: flex; gap: 8px; }
+.float-bar a { padding: 11px 16px; background: var(--bg); color: var(--ink); border: 1px solid var(--ink); text-decoration: none; font-size: .875rem; line-height: 1.4; }
+.float-bar a:hover { background: var(--ink); color: var(--bg); }
 .float-prints::after { content: " \2192"; }
-.float-prints:hover { background: var(--ink); color: var(--bg); }
+.float-top::before { content: "\2191\00a0"; }
+.float-top.is-hidden { visibility: hidden; }
 .site-foot { padding-bottom: 84px; }
-@media (min-width: 800px) { .float-prints { right: 24px; bottom: 24px; } }
-@media print { .float-prints { display: none; } }
+@media (min-width: 800px) { .float-bar { right: 24px; bottom: 24px; } }
+@media print { .float-bar { display: none; } }
 
 /* Artwork page: the Artwork link in the header opens into the mediums (Mat's request), replacing the old
    list of sections under the page title. They unfold right to left from where Artwork sat, once, on arrival. */

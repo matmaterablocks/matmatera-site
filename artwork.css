@@ -26,10 +26,6 @@
 /* Header: the medium links pick up the accent on hover. */
 .nav-art a:hover { color: var(--accent); }
 
-/* Top links in burnt peach. */
-.to-top a { color: var(--accent); }
-.to-top a:hover { color: var(--ink); }
-
 /* Bottom: the two ways to buy sit on the deep blue band, full width down to the footer, opened by the swatch strip. */
 main:has(> .pair:last-child) { padding-bottom: 0; }
 main > .pair:last-child { position: relative; margin-top: 120px; padding: 86px 0 112px; color: var(--band-ink); }

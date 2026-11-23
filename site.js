@@ -303,3 +303,13 @@
     });
   });
 })();
+
+/* Floating Top button: hidden at the top of the page, shown once the page has scrolled. */
+(function () {
+  var top = document.querySelector('.float-top');
+  if (!top) return;
+  function update() { top.classList.toggle('is-hidden', window.scrollY < 400); }
+  update();
+  window.addEventListener('scroll', update, { passive: true });
+})();
+
