@@ -36,3 +36,7 @@ main > .pair:last-child p { font-size: 1.125rem; line-height: 1.45; color: var(-
 main > .pair:last-child .act { color: var(--band-ink); font-size: 1.125rem; }
 main > .pair:last-child :focus-visible { outline-color: #eea77e; }
 @media (min-width: 800px) { main > .pair:last-child { padding: 104px 0 136px; } }
+
+/* Tighter space between Artwork sections now that the Top links are gone (Top floats bottom right instead). */
+:is(#pastels, #charcoal, #digital) { padding-top: 56px; }
+@media (min-width: 800px) { :is(#pastels, #charcoal, #digital) { padding-top: 72px; } }

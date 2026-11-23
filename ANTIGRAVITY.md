@@ -6,6 +6,9 @@
 ### Why
 An automated GitHub Actions workflow (`.github/workflows/publish-art.yml`) periodically syncs new paintings from Google Drive ("matmatera-incoming") directly to the `main` branch. Pulling `origin main` at the start of every session prevents merge conflicts and ensures your local workspace is always up-to-date with newly published artwork.
 
+## Cache Rule
+**After editing any `.css` or `.js` file, run `python3 scripts/bust_cache.py` before committing.** It stamps each page's stylesheet and script links with a content hash (`styles.css?v=…`), so visitors get the new file at once instead of a cached copy that can be up to an hour old.
+
 ## Titling Rule
 **Never give works numbered series titles** (e.g. "Figure Study I, II, III" or "Study 1, 2, 3"). Removing one piece leaves a visible gap in the sequence. Repeated subjects share a plain title (e.g. "Figure Study") or get a descriptive title from Mat.
 
