@@ -3,7 +3,7 @@
    the deep blue band with the painting's swatch strip at the bottom. Hard edges, no gradients. */
 :root {
   --ink: #1d3341;
-  --grey: #56636b;
+  --grey: #4a5760;       /* 7.4:1 on white */
   --accent: #b5512a;
   --band: #1d4155;
   --band-ink: #f4eee3;
@@ -16,7 +16,7 @@
   --ink: #f2eee8; --grey: #c2bbb1; --accent: #eea77e; --r-oils: #eea77e; --r-pastels: #81c2ed; --r-charcoal: #e1dddf; --r-digital: #b1a66e; }
 
 /* Section heads: larger names over a thick rule in a color taken from the paintings, one per medium. */
-:is(#oils, #pastels, #charcoal, #digital) > .section-head { border-bottom: 3px solid var(--rule-c, var(--ink)); padding-bottom: 14px; }
+:is(#oils, #pastels, #charcoal, #digital) > .section-head { border-bottom: 2px solid var(--rule-c, var(--ink)); padding-bottom: 14px; }
 :is(#oils, #pastels, #charcoal, #digital) > .section-head h2 { font-size: 1.75rem; letter-spacing: -.01em; line-height: 1.1; }
 #oils { --rule-c: var(--r-oils); }
 #pastels { --rule-c: var(--r-pastels); }
@@ -34,7 +34,7 @@
 main:has(> .pair:last-child) { padding-bottom: 0; }
 main > .pair:last-child { position: relative; margin-top: 120px; padding: 86px 0 112px; color: var(--band-ink); }
 main > .pair:last-child::before { content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); background: var(--band); }
-main > .pair:last-child::after { content: ""; position: absolute; top: 0; left: 50%; width: 100vw; height: 14px; transform: translateX(-50%);
+main > .pair:last-child::after { content: ""; position: absolute; top: 0; left: 50%; width: 100vw; height: 8px; transform: translateX(-50%);
   background: linear-gradient(90deg, #81c2ed 0 22%, #f3c7b4 22% 28%, #eea77e 28% 39%, #e1dddf 39% 45%, #b1a66e 45% 62%, #465b54 62% 72%, #73c9f3 72% 100%); }
 main > .pair:last-child p { font-size: 1.125rem; line-height: 1.45; color: var(--band-soft); }
 main > .pair:last-child .act { color: var(--band-ink); font-size: 1.125rem; }

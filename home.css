@@ -3,7 +3,7 @@
    painting, opened by the swatch strip; Paintings gets a burnt-peach rule; the two ways to buy sit on the blue band. */
 :root {
   --ink: #1d3341;
-  --grey: #56636b;
+  --grey: #4a5760;       /* 7.4:1 on white */
   --accent: #b5512a;
   --band: #1d4155;
   --band-ink: #f4eee3;
@@ -16,7 +16,7 @@
 
 /* The show: a deep blue block with the title set large. */
 .home-top .notice { position: relative; max-width: 24rem; padding: 40px 32px 32px; border: 0; background: var(--band); color: var(--band-ink); }
-.home-top .notice::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 12px; background: var(--strip); }
+.home-top .notice::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--strip); }
 .home-top .notice h2 { color: var(--peach); font-size: .8125rem; letter-spacing: .14em; text-transform: uppercase; padding-bottom: 14px; }
 .home-top .notice p { color: var(--band-soft); }
 .home-top .notice p:first-of-type { color: var(--band-ink); font-size: 2rem; line-height: 1.1; letter-spacing: -.015em; padding-bottom: 12px; }
@@ -26,7 +26,7 @@
 @media (min-width: 960px) { .home-top .notice { margin-bottom: 3.4rem; } }
 
 /* Paintings: larger heading over a thick burnt-peach rule; All artwork in the accent. */
-main > .section > .section-head { border-bottom: 3px solid var(--accent); padding-bottom: 14px; }
+main > .section > .section-head { border-bottom: 2px solid var(--accent); padding-bottom: 14px; }
 main > .section > .section-head h2 { font-size: 1.75rem; letter-spacing: -.01em; line-height: 1.1; }
 main > .section > .section-head .act { color: var(--accent); }
 
@@ -34,8 +34,15 @@ main > .section > .section-head .act { color: var(--accent); }
 main:has(> .pair:last-child) { padding-bottom: 0; }
 main > .pair:last-child { position: relative; margin-top: 120px; padding: 86px 0 112px; color: var(--band-ink); }
 main > .pair:last-child::before { content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); background: var(--band); }
-main > .pair:last-child::after { content: ""; position: absolute; top: 0; left: 50%; width: 100vw; height: 14px; transform: translateX(-50%); background: var(--strip); }
+main > .pair:last-child::after { content: ""; position: absolute; top: 0; left: 50%; width: 100vw; height: 8px; transform: translateX(-50%); background: var(--strip); }
 main > .pair:last-child p { font-size: 1.125rem; line-height: 1.45; color: var(--band-soft); }
 main > .pair:last-child .act { color: var(--band-ink); font-size: 1.125rem; }
 main > .pair:last-child :focus-visible { outline-color: var(--peach); }
 @media (min-width: 800px) { main > .pair:last-child { padding: 104px 0 136px; } }
+
+/* The show's details as short labeled lines (Dates, Hours, Reception) so they don't run together.
+   Each label sits just above its value, so long values never wrap into a narrow column. */
+.show-facts { display: grid; gap: 12px; margin: 18px 0 6px; padding-top: 16px; border-top: 1px solid rgba(244, 238, 227, .24); }
+.show-facts div { display: grid; gap: 2px; }
+.show-facts dt { color: var(--peach); font-size: .8125rem; letter-spacing: .12em; text-transform: uppercase; }
+.show-facts dd { color: var(--band-ink); }

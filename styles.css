@@ -4,7 +4,7 @@
 :root {
   --bg: #fff;
   --ink: #111;
-  --grey: #666;          /* 5.7:1 on white */
+  --grey: #555;          /* 7.5:1 on white */
   --rule: #ddd;
   color-scheme: light;
   --pad: 20px;
@@ -45,7 +45,7 @@ ul { padding: 0; list-style: none; }
 .site-head nav a { text-decoration: none; padding: 10px 0; }
 .site-head nav a:hover, .site-head nav a[aria-current="page"] { text-decoration: underline; }
 main { padding-bottom: 96px; }
-.site-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 32px; align-items: baseline; padding-top: 12px; padding-bottom: 28px; border-top: 1px solid var(--rule); font-size: .875rem; color: var(--grey); }
+.site-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 32px; align-items: baseline; padding-top: 12px; padding-bottom: 28px; border-top: 1px solid var(--rule); font-size: .9375rem; color: var(--grey); }
 .site-foot nav { display: flex; flex-wrap: wrap; gap: 8px 24px; }
 .site-foot a { padding: 12px 0; }
 
@@ -69,8 +69,8 @@ main { padding-bottom: 96px; }
 .work a.zoom { display: block; cursor: zoom-in; }
 .work img { width: 100%; max-width: min(100%, var(--w, 100%)); }  /* --w is the file's own width, so no image is enlarged */
 .work figcaption, .caption { padding-top: 10px; font-size: .875rem; line-height: 1.45; }
-.caption .t, .work figcaption .t { display: block; font-size: 1rem; }
-.caption .m, .work figcaption .m { display: block; color: var(--grey); }
+.caption .t, .work figcaption .t { display: block; font-size: 1.0625rem; font-weight: 500; letter-spacing: -.005em; }  /* titles a step stronger than the medium line */
+.caption .m, .work figcaption .m { display: block; padding-top: 2px; color: var(--grey); }
 
 /* Lead image on Home */
 .lead { padding-top: 8px; }
@@ -193,4 +193,14 @@ dialog.view::backdrop { background: var(--view-bg); }
   .nav-art a:nth-last-child(2) { animation-delay: .07s; }
   .nav-art a:nth-last-child(3) { animation-delay: .14s; }
   .nav-art a:nth-last-child(4) { animation-delay: .21s; }
+}
+
+/* Phones, Artwork page: the four mediums sit in two roomy columns under the name, and Info moves up beside
+   the name, so no link is left alone on a line. */
+@media (max-width: 559px) {
+  .site-head:has(.nav-art) { position: relative; }
+  .site-head:has(.nav-art) nav { width: 100%; }
+  .site-head:has(.nav-art) .nav-art { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; width: 100%; padding-top: 4px; border-top: 1px solid var(--rule); }
+  .site-head:has(.nav-art) .nav-art a { padding: 12px 0; }
+  .site-head:has(.nav-art) nav > a[href="info.html"] { position: absolute; top: 24px; right: var(--pad); padding: 10px 0; }
 }
