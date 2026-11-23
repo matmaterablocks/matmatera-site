@@ -11,7 +11,7 @@ An automated GitHub Actions workflow (`.github/workflows/publish-art.yml`) perio
 
 ---
 
-## Automated Publishing Pipeline (Google Drive -> GitHub -> Netlify)
+## Automated Publishing Pipeline (Google Drive -> GitHub -> Cloudflare Pages)
 
 1. **Incoming Folder**: `matmatera-incoming` in Google Drive.
 2. **Metadata Notes** (include a `Title:` line, or the title is guessed from the file name): Uploading an image along with a `.txt`, `.md`, or `.json` file of the same name (or key-value lines: `Title`, `Medium`, `Dimensions`, `Section`, `Alt`) triggers ingestion.
@@ -25,4 +25,4 @@ An automated GitHub Actions workflow (`.github/workflows/publish-art.yml`) perio
 5. **Google Drive Archival**:
    - Processed files are automatically moved into a `processed/` subfolder in Google Drive so they are never imported twice.
 6. **Deployment**:
-   - Commits and pushes directly to `main`, which automatically triggers a live deploy on Netlify.
+   - Commits and pushes directly to `main`, which automatically triggers a live deploy on Cloudflare Pages (project `matmatera-site`).
