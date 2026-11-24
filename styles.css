@@ -219,3 +219,6 @@ dialog.view::backdrop { background: var(--view-bg); }
 /* Works with a print on Etsy: a small "Print available" link under the medium line (added by site.js
    from the work's data-print link). */
 .work figcaption .print-tag { display: inline-block; margin-top: 4px; padding: 4px 0; color: var(--accent, var(--ink)); }
+
+/* Sold originals: a quiet "Original sold" line under the medium (the large view hides its inquiry link). */
+.work figcaption .sold { display: block; padding-top: 2px; color: var(--grey); font-style: italic; }

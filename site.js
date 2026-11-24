@@ -84,8 +84,10 @@
       text.appendChild(document.createTextNode(title));
       if (medium) text.appendChild(el('span', 'grey', ', ' + medium));
       var isDigital = (medium && medium.toLowerCase().indexOf('digital') !== -1) || (a.closest && !!a.closest('#digital'));
-      inquire.hidden = isDigital;
-      if (!isDigital) {
+      var sold = a.hasAttribute('data-sold');
+      if (sold) text.appendChild(el('span', 'grey', ' · Original sold'));
+      inquire.hidden = isDigital || sold;
+      if (!isDigital && !sold) {
         inquire.href = 'mailto:matmatera@gmail.com?subject=' + encodeURIComponent('Inquiry: ' + title);
       } else {
         inquire.removeAttribute('href');
