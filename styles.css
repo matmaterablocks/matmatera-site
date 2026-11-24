@@ -166,7 +166,7 @@ dialog.view::backdrop { background: var(--view-bg); }
 .theme-switch { font: inherit; color: inherit; background: none; border: 0; padding: 12px 0; min-width: 44px; text-align: right; cursor: pointer; text-decoration: underline; text-underline-offset: .18em; text-decoration-thickness: 1px; }
 .theme-switch:hover { text-decoration-thickness: 2px; }
 
-/* Floating Top and Prints on Etsy, bottom right on every page: small solid blocks in the site's deep blue
+/* Floating Prints on Etsy, bottom right on every page: small solid blocks in the site's deep blue
    (warm off-white in dark mode), square corners. They stay out of the way on the first screen and appear once
    the page is scrolled past it (site.js); without JavaScript they simply show. */
 :root { --float-bg: #1d4155; --float-ink: #f4eee3; }
@@ -177,7 +177,6 @@ dialog.view::backdrop { background: var(--view-bg); }
 .float-bar a:hover { text-decoration: underline; text-underline-offset: .2em; }
 .float-bar a:focus-visible { outline-color: var(--float-bg); }
 .float-prints::after { content: "\00a0\2192"; }
-.float-top::before { content: "\2191\00a0"; }
 .js .float-bar:not(.is-shown) { visibility: hidden; }
 .site-foot { padding-bottom: 72px; }
 @media (min-width: 800px) { .float-bar { right: 20px; bottom: 20px; } }
@@ -206,3 +205,13 @@ dialog.view::backdrop { background: var(--view-bg); }
   .site-head:has(.nav-art) .nav-art a { padding: 12px 0; }
   .site-head:has(.nav-art) nav > a[href="info.html"] { position: absolute; top: 24px; right: var(--pad); padding: 10px 0; }
 }
+
+/* Large view, full width: the picture runs edge to edge of the screen, and Previous / Next and Close sit
+   on top of it, in the same places as before. */
+.view-main { margin: 0 calc(-1 * var(--pad)); }
+.view-main .view-stage { inset: 0; }
+.view-step { z-index: 2; }
+.view-step.prev { left: var(--pad); }
+.view-step.next { right: var(--pad); }
+.view-close { z-index: 3; }
+@media (max-width: 699px) { .view-main .view-stage { inset: 0; } }
