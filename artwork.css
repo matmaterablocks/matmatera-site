@@ -52,7 +52,15 @@ html { scroll-padding-top: calc(var(--bar-h, 0px) + 12px); }
 /* Phones: the four links in one row under the name, so the bar that stays is a single short line. */
 @media (max-width: 559px) {
   .site-head:has(.nav-art) { position: sticky; padding-bottom: 0; margin-bottom: 20px; }
-  .site-head:has(.nav-art) .nav-art { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 12px; }
+  .site-head:has(.nav-art) .nav-art { display: flex; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 0 10px; }
+}
+/* Back-to-top arrow at the end of the stuck bar: phones only. Its space is always kept, so the links
+   don't shift when it fades in. */
+.bar-top { display: none; }
+@media (max-width: 559px) {
+  .bar-top { display: grid; place-items: center; flex: none; width: 36px; height: 40px; margin-right: -8px; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s; }
+  .bar-top svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: square; }
+  .is-stuck .bar-top { opacity: 1; visibility: visible; }
 }
 
 /* See all: a long section shows its first six with a link to its own page (site.js). */
@@ -116,3 +124,5 @@ dialog.show-pop.is-closing::backdrop { background-color: rgba(18, 18, 18, 0); }
 .show-card { transform-origin: 50% 50%; will-change: transform; }
 .show-line a { transition: opacity .3s ease; }
 .show-line.is-waiting a { opacity: 0; transition: none; }
+/* The smallest phones: a touch smaller so the four links and the arrow fit on one line. */
+@media (max-width: 369px) { .site-head:has(.nav-art) .nav-art { gap: 0 6px; font-size: .9375rem; } .bar-top { width: 28px; margin-right: -4px; } }

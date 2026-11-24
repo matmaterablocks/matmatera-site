@@ -453,6 +453,18 @@
     return y;
   }
   function stuck() { head.classList.toggle('is-stuck', window.scrollY > lift + natural()); }
+  // Phones only (artwork.css hides it on wider screens): an up arrow at the end of the bar, shown once the
+  // bar is stuck, that goes back to the top of the page.
+  var up = document.createElement('button');
+  up.type = 'button';
+  up.className = 'bar-top';
+  up.setAttribute('aria-label', 'Back to top');
+  up.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 16V4M4.5 9.5 10 4l5.5 5.5"/></svg>';
+  up.addEventListener('click', function () {
+    var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: still ? 'auto' : 'smooth' });
+  });
+  nav.appendChild(up);
   place();
   window.addEventListener('resize', place);
   window.addEventListener('load', place);
