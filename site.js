@@ -45,7 +45,16 @@
     inner.appendChild(close); inner.appendChild(main); inner.appendChild(cap);
     dialog.appendChild(inner);
     document.body.appendChild(dialog);
-    if (zooms.length < 2) { prev.hidden = true; next.hidden = true; count.hidden = true; }
+    // Previous / Next and swipe stay inside the section the work belongs to (Paintings, Pastels...),
+    // and skip works that are folded away under "See all". Home has no section ids, so it steps through all.
+    var group = zooms;
+    function groupFor(a) {
+      var sec = a.closest ? a.closest('section[id]') : null;
+      return zooms.filter(function (z) {
+        var s2 = z.closest ? z.closest('section[id]') : null;
+        return s2 === sec && !(z.closest && z.closest('[hidden]'));
+      });
+    }
 
     var at = 0;
     var opener = null;
@@ -58,9 +67,9 @@
     }
 
     function show(i) {
-      at = (i + zooms.length) % zooms.length;
-      var a = zooms[at];
-      count.textContent = (at + 1) + ' of ' + zooms.length;
+      at = (i + group.length) % group.length;
+      var a = group[at];
+      count.textContent = (at + 1) + ' of ' + group.length;
       var thumb = a.querySelector('img');
       // Title and medium come from the caption under the picture, so retyping a caption by hand
       // changes the large view too. data-title / data-medium are only the fallback.
@@ -85,12 +94,16 @@
       if (print) buy.href = print; else buy.removeAttribute('href');
     }
 
-    zooms.forEach(function (a, i) {
+    zooms.forEach(function (a) {
       a.addEventListener('click', function (e) {
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
         e.preventDefault();
         opener = a;
-        show(i);
+        group = groupFor(a);
+        if (group.indexOf(a) < 0) group = [a];
+        var one = group.length < 2;
+        prev.hidden = one; next.hidden = one; count.hidden = one;
+        show(group.indexOf(a));
         dialog.showModal();
         close.focus();
       });
@@ -99,7 +112,7 @@
     next.addEventListener('click', function () { show(at + 1); });
     close.addEventListener('click', function () { dialog.close(); });
     dialog.addEventListener('keydown', function (e) {
-      if (zooms.length < 2) return;
+      if (group.length < 2) return;
       if (e.key === 'ArrowLeft') { e.preventDefault(); show(at - 1); }
       if (e.key === 'ArrowRight') { e.preventDefault(); show(at + 1); }
     });
@@ -231,7 +244,7 @@
     // Touch: swipe left for the next work, right for the previous one.
     var swipe = null;
     dialog.addEventListener('touchstart', function (e) {
-      swipe = (zooms.length > 1 && e.touches.length === 1 && z.s === 1) // zoomed in, a drag moves the picture
+      swipe = (group.length > 1 && e.touches.length === 1 && z.s === 1) // zoomed in, a drag moves the picture
         ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
         : null;
     }, { passive: true });
@@ -251,7 +264,7 @@
       zoomReset();
       image.removeAttribute('src');
       // Stepping may have moved on: return to the work last shown if the opener is not it.
-      var back = zooms[at] || opener;
+      var back = group[at] || opener;
       if (back && back.focus) back.focus();
       opener = null;
     });
@@ -304,12 +317,113 @@
   });
 })();
 
-/* Floating Top button: hidden at the top of the page, shown once the page has scrolled. */
+/* Floating Top and Prints on Etsy buttons: hidden on the first screen, shown once the visitor has scrolled
+   past it, and kept hidden while they would sit over the exhibition card on Home. */
 (function () {
-  var top = document.querySelector('.float-top');
-  if (!top) return;
-  function update() { top.classList.toggle('is-hidden', window.scrollY < 400); }
+  var bar = document.querySelector('.float-bar');
+  if (!bar) return;
+  var notice = document.querySelector('.home-top .notice');
+  function update() {
+    var h = window.innerHeight;
+    var show = window.scrollY > h * 0.85;
+    if (show && notice) {
+      var r = notice.getBoundingClientRect();
+      if (r.top < h && r.bottom > h - 90) show = false;  // the buttons' strip at the bottom of the screen
+    }
+    bar.classList.toggle('is-shown', show);
+  }
   update();
   window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
 })();
 
+/* Artwork page: section pages and "See all".
+   A section with more than data-see-all works (20) shows its first data-show (6) and a "See all" link to
+   artwork.html?section=<id>, which shows that one section in full. Without JavaScript everything shows. */
+(function () {
+  var main = document.getElementById('main');
+  var nav = document.querySelector('.nav-art');
+  if (!main || !nav || !main.hasAttribute('data-see-all')) return;
+  var limit = parseInt(main.getAttribute('data-see-all'), 10) || 0;
+  var first = parseInt(main.getAttribute('data-show'), 10) || 6;
+  var sections = Array.prototype.slice.call(main.querySelectorAll(':scope > section.section[id]'));
+  var only = window.URLSearchParams ? new URLSearchParams(location.search).get('section') : null;
+  var page = null;
+  sections.forEach(function (s) { if (s.id === only) page = s; });
+
+  function headLink(sec, href, label, cls) {
+    var head = sec.querySelector('.section-head');
+    if (!head) return;
+    var a = document.createElement('a');
+    a.className = 'act ' + cls;
+    a.href = href;
+    a.textContent = label;
+    head.appendChild(a);
+  }
+
+  if (page) {
+    // One section on its own page.
+    sections.forEach(function (s) { if (s !== page) s.hidden = true; });
+    document.documentElement.classList.add('section-page');
+    var h2 = page.querySelector('h2');
+    if (h2) document.title = h2.textContent + ' | Mat Matera';
+    headLink(page, 'artwork.html', 'All artwork', 'act-back');
+    Array.prototype.forEach.call(nav.querySelectorAll('a[href^="#"]'), function (a) {
+      var id = a.getAttribute('href').slice(1);
+      if (id !== page.id) a.href = 'artwork.html#' + id;
+    });
+    return;
+  }
+  if (!limit) return;
+  sections.forEach(function (s) {
+    var works = s.querySelectorAll('.works > .work');
+    if (works.length <= limit) return;
+    for (var i = first; i < works.length; i++) works[i].hidden = true;
+    headLink(s, 'artwork.html?section=' + encodeURIComponent(s.id), 'See all ' + works.length, 'act-all');
+  });
+})();
+
+/* Artwork page: the section links stay at the top of the screen while scrolling. The whole header is
+   sticky, pulled up so that only the row of section links stays in view (on phones the name and Info
+   scroll away). Links jump to a section without the bar covering its heading, and the section in view
+   is underlined. */
+(function () {
+  var head = document.querySelector('.site-head');
+  var nav = head && head.querySelector('.nav-art');
+  if (!nav) return;
+  var root = document.documentElement;
+  var lift = 0;
+  function place() {
+    head.style.top = '0px';
+    var off = nav.getBoundingClientRect().top - head.getBoundingClientRect().top - 6;
+    lift = Math.max(0, Math.round(off));
+    head.style.top = (-lift) + 'px';
+    root.style.setProperty('--bar-h', (head.offsetHeight - lift) + 'px');
+    stuck();
+  }
+  function stuck() { head.classList.toggle('is-stuck', window.scrollY > lift); }
+  place();
+  window.addEventListener('resize', place);
+  window.addEventListener('load', place);
+  window.addEventListener('scroll', stuck, { passive: true });
+
+  var links = {};
+  Array.prototype.forEach.call(nav.querySelectorAll('a'), function (a) {
+    var id = (a.getAttribute('href') || '').split('#')[1];
+    if (id) links[id] = a;
+  });
+  if (!('IntersectionObserver' in window)) return;
+  var here = null;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      if (here) here.classList.remove('is-here');
+      here = links[e.target.id] || null;
+      if (here) here.classList.add('is-here');
+    });
+  }, { rootMargin: '-30% 0px -65% 0px' });
+  Object.keys(links).forEach(function (id) {
+    var s = document.getElementById(id);
+    if (s) io.observe(s);
+  });
+})();

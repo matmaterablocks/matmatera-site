@@ -40,3 +40,23 @@ main > .pair:last-child :focus-visible { outline-color: #eea77e; }
 /* Tighter space between Artwork sections now that the Top links are gone (Top floats bottom right instead). */
 :is(#pastels, #charcoal, #digital) { padding-top: 56px; }
 @media (min-width: 800px) { :is(#pastels, #charcoal, #digital) { padding-top: 72px; } }
+
+/* The section links stay at the top of the screen while scrolling (site.js pulls the sticky header up so only
+   the row of links stays in view). A full-width wall-colored backing, and a hairline once it's stuck. */
+.site-head:has(.nav-art) { position: sticky; top: 0; z-index: 3; padding-bottom: 12px; margin-bottom: 12px; }
+.site-head:has(.nav-art)::before { content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); background: var(--bg); }
+.site-head.is-stuck::after { content: ""; position: absolute; bottom: 0; left: 50%; width: 100vw; height: 1px; transform: translateX(-50%); background: var(--rule); }
+.nav-art a.is-here { text-decoration: underline; }
+html { scroll-padding-top: calc(var(--bar-h, 0px) + 12px); }
+@media (min-width: 800px) { .site-head:has(.nav-art) { padding-bottom: 14px; margin-bottom: 22px; } }
+/* Phones: the four links in one row under the name, so the bar that stays is a single short line. */
+@media (max-width: 559px) {
+  .site-head:has(.nav-art) { position: sticky; padding-bottom: 0; margin-bottom: 20px; }
+  .site-head:has(.nav-art) .nav-art { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 12px; }
+}
+
+/* See all: a long section shows its first six with a link to its own page (site.js). */
+.section-head .act-all, .section-head .act-back { color: var(--accent); }
+.act-back::after { content: none; }
+.act-back::before { content: "\2190\00a0"; }
+.section-page :is(#oils, #pastels, #charcoal, #digital) { padding-top: 8px; }
