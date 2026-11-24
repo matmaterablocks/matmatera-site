@@ -524,16 +524,5 @@
   if (!seen && !location.search && !location.hash) open();
 })();
 
-/* Works with an Etsy print (data-print on their link) get a "Print available" link under the caption. */
-(function () {
-  Array.prototype.forEach.call(document.querySelectorAll('.work a.zoom[data-print]'), function (a) {
-    var cap = a.closest('figure') && a.closest('figure').querySelector('figcaption');
-    if (!cap) return;
-    var tag = document.createElement('a');
-    tag.className = 'print-tag';
-    tag.href = a.getAttribute('data-print');
-    tag.rel = 'noopener';
-    tag.textContent = 'Print available';
-    cap.appendChild(tag);
-  });
-})();
+/* "Print available" under grid captions was removed (Nov 2026): Mat wants print and sold info
+   only in the large view, which shows "Buy a print on Etsy" and "Original sold". */
