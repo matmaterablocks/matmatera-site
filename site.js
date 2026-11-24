@@ -399,7 +399,7 @@
 
 /* Artwork page: section pages and "See all".
    A section with more than data-see-all works (20) shows its first data-show (6) and a "See all" link to
-   artwork.html?section=<id>, which shows that one section in full. Without JavaScript everything shows. */
+   /?section=<id>, which shows that one section in full. Without JavaScript everything shows. */
 (function () {
   var main = document.getElementById('main');
   var nav = document.querySelector('.nav-art');
@@ -427,10 +427,10 @@
     document.documentElement.classList.add('section-page');
     var h2 = page.querySelector('h2');
     if (h2) document.title = h2.textContent + ' | Mat Matera';
-    headLink(page, 'artwork.html', 'All artwork', 'act-back');
+    headLink(page, '/', 'All artwork', 'act-back');
     Array.prototype.forEach.call(nav.querySelectorAll('a[href^="#"]'), function (a) {
       var id = a.getAttribute('href').slice(1);
-      if (id !== page.id) a.href = 'artwork.html#' + id;
+      if (id !== page.id) a.href = '/#' + id;
     });
     return;
   }
@@ -439,7 +439,7 @@
     var works = s.querySelectorAll('.works > .work');
     if (works.length <= limit) return;
     for (var i = first; i < works.length; i++) works[i].hidden = true;
-    headLink(s, 'artwork.html?section=' + encodeURIComponent(s.id), 'See all ' + works.length, 'act-all');
+    headLink(s, '/?section=' + encodeURIComponent(s.id), 'See all ' + works.length, 'act-all');
   });
 })();
 
@@ -461,7 +461,16 @@
     root.style.setProperty('--bar-h', (head.offsetHeight - lift) + 'px');
     stuck();
   }
-  function stuck() { head.classList.toggle('is-stuck', window.scrollY > lift); }
+  // How far down the page the header starts (the exhibition line sits above it).
+  function natural() {
+    var y = 0;
+    for (var n = head.previousElementSibling; n; n = n.previousElementSibling) {
+      var pos = getComputedStyle(n).position;
+      if (pos !== 'absolute' && pos !== 'fixed' && !n.hidden) y += n.offsetHeight;
+    }
+    return y;
+  }
+  function stuck() { head.classList.toggle('is-stuck', window.scrollY > lift + natural()); }
   place();
   window.addEventListener('resize', place);
   window.addEventListener('load', place);
@@ -496,4 +505,39 @@
       if (!(e.target.closest && e.target.closest('dialog.view'))) e.preventDefault();
     }, { passive: false });
   });
+})();
+
+/* The current show: a card that opens over the artwork on a visitor's first arrival, and a slim line at the
+   very top that opens it again. Closing it is remembered on this device. After the show's last day
+   (data-until), neither appears. Without JavaScript the line links to the gallery. */
+(function () {
+  var pop = document.getElementById('show');
+  var line = document.querySelector('.show-line');
+  if (!pop) return;
+  var until = Date.parse(pop.getAttribute('data-until') || '');
+  if (until && Date.now() >= until) {
+    if (line) line.hidden = true;
+    return;
+  }
+  if (typeof pop.showModal !== 'function') return;
+  var key = 'show-closed:' + (pop.getAttribute('data-until') || '');
+  function open() { if (!pop.open) pop.showModal(); }
+  function shut() { pop.close(); }
+  pop.addEventListener('close', function () { try { localStorage.setItem(key, '1'); } catch (e) {} });
+  pop.querySelector('.show-close').addEventListener('click', shut);
+  pop.querySelector('.show-go').addEventListener('click', shut);
+  // A click on the dimmed backdrop (outside the card) closes it too.
+  pop.addEventListener('click', function (e) { if (e.target === pop) shut(); });
+  if (line) {
+    var a = line.querySelector('a');
+    a.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+      e.preventDefault();
+      open();
+    });
+  }
+  var seen = false;
+  try { seen = localStorage.getItem(key) === '1'; } catch (e) {}
+  // Not on a section's own page or when arriving at a section link; those visitors came for the artwork.
+  if (!seen && !location.search && !location.hash) open();
 })();

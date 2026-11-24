@@ -8,7 +8,7 @@ for new paintings/artwork images and accompanying metadata notes.
 For each new artwork:
   1. Downloads and converts image to optimized .webp (max 1600px longest edge, q=82)
   2. Saves into the section folder: assets/paintings, assets/pastels, assets/drawings or assets/digital
-  3. Inserts a new <figure class="work"> at the top of the matching section in artwork.html
+  3. Inserts a new <figure class="work"> at the top of the matching section in index.html (the Artwork page)
      (and in index.html if it is an oil painting / Paintings section)
   4. Moves processed Drive files into a "processed" subfolder inside "matmatera-incoming"
 """
@@ -42,7 +42,7 @@ SECTION_FOLDERS = {
     "charcoal": ("drawings", "drawing"),
     "digital": ("digital", "digital painting"),
 }
-ARTWORK_HTML = ROOT_DIR / "artwork.html"
+ARTWORK_HTML = ROOT_DIR / "index.html"  # the Artwork page is the front page (artwork.html only redirects)
 INDEX_HTML = ROOT_DIR / "index.html"
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff", ".bmp", ".heic"}
@@ -442,12 +442,9 @@ def sync():
 
         figure_html = build_figure_html(f"assets/{folder}/{slug}.webp", title, medium, alt, width, height)
 
-        print(f"Updating artwork.html (section: {section_id})...")
+        print(f"Updating index.html (section: {section_id})...")
         insert_into_artwork_html(figure_html, section_id)
 
-        if section_id == "oils":
-            print("Updating index.html (Paintings)...")
-            insert_into_index_html(figure_html)
 
         # Move Drive files to processed subfolder
         print(f"Moving {img_name} to 'processed' subfolder...")
