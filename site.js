@@ -75,6 +75,7 @@
       // changes the large view too. data-title / data-medium are only the fallback.
       var title = captionText(a, 't', 'data-title');
       var medium = captionText(a, 'm', 'data-medium');
+      tonePx = null;
       zoomReset();
       image.removeAttribute('src');
       image.alt = thumb ? thumb.alt : title;
@@ -106,6 +107,7 @@
         show(group.indexOf(a));
         dialog.showModal();
         close.focus();
+        if (image.complete && image.naturalWidth) { toneRead(); tone(); }
       });
     });
     prev.addEventListener('click', function () { show(at - 1); });
@@ -124,14 +126,71 @@
     var tapDown = null;
     var lastTap = null;
     image.draggable = false;
+
+    // Previous, Next and Close sit on top of the picture, so each one turns light or dark to stand out from
+    // the part of the painting behind it. Off the picture they keep the page colors.
+    var tonePx = null, toneW = 0, toneH = 0, toneT = 0;
+    var toned = [prev, next, close];
+    function toneRead() {
+      tonePx = null;
+      try {
+        var nw = image.naturalWidth, nh = image.naturalHeight;
+        if (!nw || !nh) return;
+        var k = Math.min(1, 240 / Math.max(nw, nh));
+        toneW = Math.max(1, Math.round(nw * k)); toneH = Math.max(1, Math.round(nh * k));
+        var c = document.createElement('canvas');
+        c.width = toneW; c.height = toneH;
+        var g = c.getContext('2d');
+        g.drawImage(image, 0, 0, toneW, toneH);
+        tonePx = g.getImageData(0, 0, toneW, toneH).data;
+      } catch (err) { tonePx = null; }
+    }
+    function lin(v) { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }
+    function tone() {
+      toned.forEach(function (b) { b.classList.remove('tone-light', 'tone-dark'); });
+      if (!tonePx || !dialog.open) return;
+      var f = fitted();
+      var sb = stage.getBoundingClientRect();
+      var w = f.w * z.s, h = f.h * z.s;
+      var left = sb.left + (sb.width - w) / 2 + z.x, top = sb.top + (sb.height - h) / 2 + z.y;
+      toned.forEach(function (b) {
+        if (b.hidden) return;
+        var r = b.getBoundingClientRect();
+        var x0 = Math.max(r.left, left), x1 = Math.min(r.right, left + w);
+        var y0 = Math.max(r.top, top), y1 = Math.min(r.bottom, top + h);
+        if (x1 <= x0 || y1 <= y0) return;
+        if ((x1 - x0) * (y1 - y0) < r.width * r.height * 0.3) return;  // mostly over the plain wall
+        var px0 = Math.floor((x0 - left) / w * toneW), px1 = Math.ceil((x1 - left) / w * toneW);
+        var py0 = Math.floor((y0 - top) / h * toneH), py1 = Math.ceil((y1 - top) / h * toneH);
+        var sum = 0, n = 0;
+        for (var y = Math.max(0, py0); y < Math.min(toneH, py1); y++) {
+          for (var x = Math.max(0, px0); x < Math.min(toneW, px1); x++) {
+            var i = (y * toneW + x) * 4;
+            sum += 0.2126 * lin(tonePx[i]) + 0.7152 * lin(tonePx[i + 1]) + 0.0722 * lin(tonePx[i + 2]);
+            n++;
+          }
+        }
+        if (!n) return;
+        var L = sum / n;
+        // Pick whichever of the light (#f4eee3) or dark (#1d3341) icon has more contrast with what's behind.
+        var cLight = (0.85 + 0.05) / (L + 0.05), cDark = (L + 0.05) / (0.03 + 0.05);
+        b.classList.add(cLight >= cDark ? 'tone-light' : 'tone-dark');
+      });
+    }
+    function toneSoon(ease) {
+      if (window.requestAnimationFrame) requestAnimationFrame(tone); else tone();
+      clearTimeout(toneT);
+      if (ease) toneT = setTimeout(tone, 220);  // after the zoom animation settles
+    }
+    image.addEventListener('load', function () { toneRead(); tone(); });
     function fitted() {
       var sw = stage.clientWidth || 1, sh = stage.clientHeight || 1;
       var nw = image.naturalWidth || sw, nh = image.naturalHeight || sh;
-      var r = Math.min(1, sw / nw, sh / nh);
+      var r = Math.min(sw / nw, sh / nh);  // small pictures are stretched to fill the view
       return { sw: sw, sh: sh, w: nw * r, h: nh * r, r: r };
     }
     // Up to the file's own pixels, and at least 3x so small files still open up.
-    function zoomMax() { return Math.max(3, Math.min(8, 1 / fitted().r)); }
+    function zoomMax() { return Math.max(3, Math.min(8, 1 / fitted().r)); }  // 1/r < 1 for stretched pictures, so 3x
     function zoomApply(ease) {
       var f = fitted();
       var mx = Math.max(0, (f.w * z.s - f.sw) / 2);
@@ -141,6 +200,7 @@
       stage.classList.toggle('ease', !!ease);
       stage.classList.toggle('zoomed', z.s > 1);
       image.style.transform = z.s === 1 ? '' : 'translate(' + z.x + 'px,' + z.y + 'px) scale(' + z.s + ')';
+      toneSoon(ease);
     }
     function zoomReset() {
       z.s = 1; z.x = 0; z.y = 0;

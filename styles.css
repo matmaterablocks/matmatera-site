@@ -215,3 +215,13 @@ dialog.view::backdrop { background: var(--view-bg); }
 .view-step.next { right: var(--pad); }
 .view-close { z-index: 3; }
 @media (max-width: 699px) { .view-main .view-stage { inset: 0; } }
+
+/* Large view: small pictures stretch to fill the view like the rest. */
+.view-stage img { object-fit: contain; }
+/* Previous, Next and Close turn light or dark to stand out from the part of the picture behind them (site.js). */
+.view-step.tone-light, .view-close.tone-light { color: #f4eee3; }
+.view-step.tone-dark, .view-close.tone-dark { color: #1d3341; }
+.view-close.tone-light:hover circle { fill: #f4eee3; }
+.view-close.tone-light:hover path { stroke: #1d3341; }
+.view-close.tone-dark:hover circle { fill: #1d3341; }
+.view-close.tone-dark:hover path { stroke: #f4eee3; }
