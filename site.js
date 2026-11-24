@@ -572,3 +572,33 @@
 
 /* "Print available" under grid captions was removed (Nov 2026): Mat wants print and sold info
    only in the large view, which shows "Buy a print on Etsy" and "Original sold". */
+
+/* Prints in the top menu: a small card first says the shop is on Etsy and opens in a new tab, so visitors
+   know they are leaving (Nov 2026). Without JavaScript the link simply opens Etsy in a new tab. */
+(function () {
+  var links = document.querySelectorAll('a.to-etsy');
+  if (!links.length || !window.HTMLDialogElement) return;
+  var d = document.createElement('dialog');
+  if (typeof d.showModal !== 'function') return;
+  d.className = 'leave-pop';
+  d.setAttribute('aria-labelledby', 'leave-h');
+  d.innerHTML = '<div class="leave-card"><h2 id="leave-h">Prints</h2>' +
+    '<p>My prints are sold through my Etsy shop, which opens in a new tab. This site stays open here.</p>' +
+    '<p class="leave-acts"><button class="leave-stay" type="button">Stay here</button>' +
+    '<a class="leave-go" href="' + links[0].href + '" target="_blank" rel="noopener">Go to Etsy</a></p></div>';
+  document.body.appendChild(d);
+  var go = d.querySelector('.leave-go');
+  function shut() { d.close(); }
+  d.querySelector('.leave-stay').addEventListener('click', shut);
+  go.addEventListener('click', function () { setTimeout(shut, 0); });
+  d.addEventListener('click', function (e) { if (e.target === d) shut(); });
+  Array.prototype.forEach.call(links, function (a) {
+    a.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+      e.preventDefault();
+      go.href = a.href;
+      d.showModal();
+      go.focus();
+    });
+  });
+})();

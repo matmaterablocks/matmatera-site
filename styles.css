@@ -41,6 +41,8 @@ ul { padding: 0; list-style: none; }
 .site-head, main, .site-foot { max-width: var(--max); margin: 0 auto; padding-left: var(--pad); padding-right: var(--pad); }
 .site-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 32px; padding-top: 24px; padding-bottom: 24px; }
 .site-name { padding: 7px 0; font-size: 1.25rem; text-decoration: none; letter-spacing: .01em; }
+/* The name is a quiet second way to Info: no underline until hover. */
+a.site-name:hover { text-decoration: underline; }
 .site-head nav { display: flex; gap: 24px; }
 .site-head nav a { text-decoration: none; padding: 10px 0; }
 .site-head nav a:hover, .site-head nav a[aria-current="page"] { text-decoration: underline; }
@@ -220,3 +222,19 @@ dialog.view::backdrop { background: var(--view-bg); }
    from the work's data-print link). */
 .work figcaption .print-tag { display: inline-block; margin-top: 4px; padding: 4px 0; color: var(--accent, var(--ink)); }
 
+
+/* Leaving for Etsy: a small card before the Prints link opens the shop in a new tab (site.js). Same deep blue
+   and swatch strip as the show card; colors are fixed so dark mode cannot make it see-through. */
+dialog.leave-pop { width: min(22rem, calc(100vw - 32px)); margin: auto; padding: 0; border: 0; background: none; color: #f4eee3; }
+dialog.leave-pop::backdrop { background: rgba(18, 18, 18, .62); }
+.leave-card { position: relative; padding: 34px 28px 24px; background: #1d4155; }
+.leave-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+  background: linear-gradient(90deg, #81c2ed 0 22%, #f3c7b4 22% 28%, #eea77e 28% 39%, #e1dddf 39% 45%, #b1a66e 45% 62%, #465b54 62% 72%, #73c9f3 72% 100%); }
+.leave-card h2 { color: #eea77e; font-size: .8125rem; letter-spacing: .14em; text-transform: uppercase; padding-bottom: 12px; }
+.leave-card p { color: #c9d5d9; }
+.leave-acts { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; margin-top: 22px; }
+.leave-stay { font: inherit; color: #f4eee3; background: none; border: 0; padding: 10px 0; cursor: pointer; text-decoration: underline; text-underline-offset: .18em; }
+.leave-go { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; color: #1d4155; background: #f4eee3; text-decoration: none; }
+.leave-go::after { content: "\00a0\2197"; }
+.leave-go:hover { text-decoration: underline; }
+.leave-card :focus-visible { outline: 2px solid #eea77e; outline-offset: 3px; }
