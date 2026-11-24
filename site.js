@@ -487,3 +487,13 @@
     if (s) io.observe(s);
   });
 })();
+
+/* Artwork page: block Safari's page pinch-zoom on the grid (the large view has its own zoom). */
+(function () {
+  if (!document.querySelector('.nav-art')) return;
+  ['gesturestart', 'gesturechange'].forEach(function (t) {
+    document.addEventListener(t, function (e) {
+      if (!(e.target.closest && e.target.closest('dialog.view'))) e.preventDefault();
+    }, { passive: false });
+  });
+})();

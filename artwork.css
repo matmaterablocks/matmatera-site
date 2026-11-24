@@ -68,3 +68,7 @@ html { scroll-padding-top: calc(var(--bar-h, 0px) + 12px); }
   .work figcaption { padding-top: 6px; font-size: .75rem; line-height: 1.35; }
   .work figcaption .t { font-size: .875rem; }
 }
+
+/* The Artwork page itself doesn't pinch-zoom (Mat's request): zooming happens in the large view, which has
+   its own zoom. Scrolling still works. The viewport tag covers Android; this covers iPhone. */
+html { touch-action: pan-x pan-y; }
