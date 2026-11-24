@@ -61,13 +61,6 @@ html { scroll-padding-top: calc(var(--bar-h, 0px) + 12px); }
 .act-back::before { content: "\2190\00a0"; }
 .section-page :is(#oils, #pastels, #charcoal, #digital) { padding-top: 8px; }
 
-/* Phones: two works per row, so long sections take half the scrolling. Tap one to open it large.
-   (To go back to one per row, delete this block, or revert the commit "Phones: two works per row".) */
-@media (max-width: 559px) {
-  .works { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 14px; }
-  .work figcaption { padding-top: 6px; font-size: .75rem; line-height: 1.35; }
-  .work figcaption .t { font-size: .875rem; }
-}
 
 /* The Artwork page itself doesn't pinch-zoom (Mat's request): zooming happens in the large view, which has
    its own zoom. Scrolling still works. The viewport tag covers Android; this covers iPhone. */
