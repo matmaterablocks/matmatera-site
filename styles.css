@@ -225,3 +225,5 @@ dialog.view::backdrop { background: var(--view-bg); }
 .view-close.tone-light:hover path { stroke: #1d3341; }
 .view-close.tone-dark:hover circle { fill: #1d3341; }
 .view-close.tone-dark:hover path { stroke: #f4eee3; }
+/* Large view: no gap above the picture; it starts at the top edge of the screen. */
+.view-inner { padding-top: 0; }
