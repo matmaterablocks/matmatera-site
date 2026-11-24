@@ -35,7 +35,7 @@
     var text = el('p');
     var links = el('p', 'view-links');
     var inquire = el('a', '', 'Inquire about original');
-    var buy = el('a', '', 'Buy a print');
+    var buy = el('a', '', 'Buy a print on Etsy');
     buy.rel = 'noopener';
     stage.appendChild(image);
     main.appendChild(stage); main.appendChild(prev); main.appendChild(next);
@@ -377,26 +377,6 @@
   });
 })();
 
-/* Floating Top and Prints on Etsy buttons: hidden on the first screen, shown once the visitor has scrolled
-   past it, and kept hidden while they would sit over the exhibition card on Home. */
-(function () {
-  var bar = document.querySelector('.float-bar');
-  if (!bar) return;
-  var notice = document.querySelector('.home-top .notice');
-  function update() {
-    var h = window.innerHeight;
-    var show = window.scrollY > h * 0.85;
-    if (show && notice) {
-      var r = notice.getBoundingClientRect();
-      if (r.top < h && r.bottom > h - 90) show = false;  // the buttons' strip at the bottom of the screen
-    }
-    bar.classList.toggle('is-shown', show);
-  }
-  update();
-  window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update);
-})();
-
 /* Artwork page: section pages and "See all".
    A section with more than data-see-all works (20) shows its first data-show (6) and a "See all" link to
    /?section=<id>, which shows that one section in full. Without JavaScript everything shows. */
@@ -540,4 +520,18 @@
   try { seen = localStorage.getItem(key) === '1'; } catch (e) {}
   // Not on a section's own page or when arriving at a section link; those visitors came for the artwork.
   if (!seen && !location.search && !location.hash) open();
+})();
+
+/* Works with an Etsy print (data-print on their link) get a "Print available" link under the caption. */
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('.work a.zoom[data-print]'), function (a) {
+    var cap = a.closest('figure') && a.closest('figure').querySelector('figcaption');
+    if (!cap) return;
+    var tag = document.createElement('a');
+    tag.className = 'print-tag';
+    tag.href = a.getAttribute('data-print');
+    tag.rel = 'noopener';
+    tag.textContent = 'Print available';
+    cap.appendChild(tag);
+  });
 })();

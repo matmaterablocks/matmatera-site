@@ -166,21 +166,8 @@ dialog.view::backdrop { background: var(--view-bg); }
 .theme-switch { font: inherit; color: inherit; background: none; border: 0; padding: 12px 0; min-width: 44px; text-align: right; cursor: pointer; text-decoration: underline; text-underline-offset: .18em; text-decoration-thickness: 1px; }
 .theme-switch:hover { text-decoration-thickness: 2px; }
 
-/* Floating Prints on Etsy, bottom right on every page: small solid blocks in the site's deep blue
-   (warm off-white in dark mode), square corners. They stay out of the way on the first screen and appear once
-   the page is scrolled past it (site.js); without JavaScript they simply show. */
-:root { --float-bg: #1d4155; --float-ink: #f4eee3; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --float-bg: #f2eee8; --float-ink: #121212; } }
-:root[data-theme="dark"] { --float-bg: #f2eee8; --float-ink: #121212; }
-.float-bar { position: fixed; right: 12px; bottom: 12px; z-index: 2; display: flex; gap: 6px; }
-.float-bar a { display: flex; align-items: center; min-height: 40px; padding: 0 12px; background: var(--float-bg); color: var(--float-ink); text-decoration: none; font-size: .8125rem; line-height: 1; letter-spacing: .01em; }
-.float-bar a:hover { text-decoration: underline; text-underline-offset: .2em; }
-.float-bar a:focus-visible { outline-color: var(--float-bg); }
-.float-prints::after { content: "\00a0\2192"; }
-.js .float-bar:not(.is-shown) { visibility: hidden; }
-.site-foot { padding-bottom: 72px; }
-@media (min-width: 800px) { .float-bar { right: 20px; bottom: 20px; } }
-@media print { .float-bar { display: none; } }
+/* Prints (the Etsy shop) sits in the top menu beside Info; the floating button is gone. */
+.nav-side { display: flex; gap: 0 24px; }
 
 /* Artwork page: the Artwork link in the header opens into the mediums (Mat's request), replacing the old
    list of sections under the page title. They unfold right to left from where Artwork sat, once, on arrival. */
@@ -203,7 +190,8 @@ dialog.view::backdrop { background: var(--view-bg); }
   .site-head:has(.nav-art) nav { width: 100%; }
   .site-head:has(.nav-art) .nav-art { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; width: 100%; padding-top: 4px; border-top: 1px solid var(--rule); }
   .site-head:has(.nav-art) .nav-art a { padding: 12px 0; }
-  .site-head:has(.nav-art) nav > a[href="info.html"] { position: absolute; top: 24px; right: var(--pad); padding: 10px 0; }
+  .site-head:has(.nav-art) .nav-side { position: absolute; top: 24px; right: var(--pad); }
+  .site-head:has(.nav-art) .nav-side a { padding: 10px 0; }
 }
 
 /* Large view, full width: the picture runs edge to edge of the screen, and Previous / Next and Close sit
@@ -227,3 +215,7 @@ dialog.view::backdrop { background: var(--view-bg); }
 .view-close.tone-dark:hover path { stroke: #f4eee3; }
 /* Large view: no gap above the picture; it starts at the top edge of the screen. */
 .view-inner { padding-top: 0; }
+
+/* Works with a print on Etsy: a small "Print available" link under the medium line (added by site.js
+   from the work's data-print link). */
+.work figcaption .print-tag { display: inline-block; margin-top: 4px; padding: 4px 0; color: var(--accent, var(--ink)); }
