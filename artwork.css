@@ -107,3 +107,12 @@ dialog.show-pop::backdrop { background: rgba(18, 18, 18, .62); }
 .show-close:hover path { stroke: var(--band); }
 .show-card :focus-visible { outline-color: #eea77e; }
 .show-card:focus { outline: none; }
+/* Closing: the words fade, the dimming lifts, and the blue card folds into the top line (site.js). */
+dialog.show-pop::backdrop { transition: background-color .5s ease .1s; }
+dialog.show-pop.is-closing { overflow: visible; }
+dialog.show-pop.is-closing::backdrop { background-color: rgba(18, 18, 18, 0); }
+.show-card > *, .show-card::before { transition: opacity .14s ease; }
+.is-closing .show-card > *, .is-closing .show-card::before { opacity: 0; }
+.show-card { transform-origin: 50% 50%; will-change: transform; }
+.show-line a { transition: opacity .3s ease; }
+.show-line.is-waiting a { opacity: 0; transition: none; }

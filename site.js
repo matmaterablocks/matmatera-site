@@ -503,9 +503,41 @@
   }
   if (typeof pop.showModal !== 'function') return;
   var key = 'show-closed:' + (pop.getAttribute('data-until') || '');
-  function open() { if (!pop.open) pop.showModal(); }
-  function shut() { pop.close(); }
-  pop.addEventListener('close', function () { try { localStorage.setItem(key, '1'); } catch (e) {} });
+  var card = pop.querySelector('.show-card');
+  var closing = false;
+  // While the card is up, the top line's words wait; they appear once the card has folded into the line.
+  function landed() { if (line) line.classList.remove('is-waiting'); }
+  function open() {
+    if (pop.open) return;
+    if (line) line.classList.add('is-waiting');
+    pop.showModal();
+  }
+  // Closing folds the card up into the slim line at the top, so visitors see where the show went.
+  function shut() {
+    if (!pop.open || closing) return;
+    var r = line && !line.hidden ? line.getBoundingClientRect() : null;
+    var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (still || !card.animate || !r || r.height === 0 || r.bottom <= 0) { pop.close(); landed(); return; }
+    closing = true;
+    var c = card.getBoundingClientRect();
+    var dx = (r.left + r.width / 2) - (c.left + c.width / 2);
+    var dy = (r.top + r.height / 2) - (c.top + c.height / 2);
+    pop.classList.add('is-closing');
+    var fold = card.animate([
+      { transform: 'none' },
+      { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + (r.width / c.width) + ',' + (r.height / c.height) + ')' }
+    ], { duration: 560, delay: 90, easing: 'cubic-bezier(.65, 0, .3, 1)', fill: 'forwards' });
+    fold.onfinish = function () {
+      pop.close();
+      pop.classList.remove('is-closing');
+      fold.cancel();
+      closing = false;
+      landed();
+    };
+  }
+  pop.addEventListener('close', function () { try { localStorage.setItem(key, '1'); } catch (e) {} landed(); });
+  // Escape folds it up the same way.
+  pop.addEventListener('cancel', function (e) { e.preventDefault(); shut(); });
   pop.querySelector('.show-close').addEventListener('click', shut);
   pop.querySelector('.show-go').addEventListener('click', shut);
   // A click on the dimmed backdrop (outside the card) closes it too.
@@ -521,7 +553,9 @@
   var seen = false;
   try { seen = localStorage.getItem(key) === '1'; } catch (e) {}
   // Not on a section's own page or when arriving at a section link; those visitors came for the artwork.
-  if (!seen && !location.search && !location.hash) open();
+  // #show always opens it (handy for checking it again on a device that has already closed it).
+  if (location.hash === '#show') open();
+  else if (!seen && !location.search && !location.hash) open();
 })();
 
 /* "Print available" under grid captions was removed (Nov 2026): Mat wants print and sold info
