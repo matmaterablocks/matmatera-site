@@ -158,7 +158,7 @@ dialog.show-pop.is-closing::backdrop { background-color: rgba(18, 18, 18, 0); }
 /* Phone: name and dates, View at the right; slims to EXHIBITION alone once scrolling starts (site.js). */
 @media (max-width: 559px) {
   :root { --strip-h: 32px; }
-  :root.show-compact { --strip-h: 22px; }
+  :root.show-compact { --strip-h: 26px; }
   .show-line { font-size: .8125rem; }
   .show-line .show-gal { display: none; }
   .show-line .show-view { margin-left: auto; padding-left: 12px; }
@@ -187,16 +187,14 @@ dialog.show-pop.is-closing::backdrop { background-color: rgba(18, 18, 18, 0); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) main > .pair:last-child::before { background: var(--panel); } }
 :root[data-theme="dark"] main > .pair:last-child::before { background: var(--panel); }
 
-/* Opening image: a cropped band of Northampton Panorama across the full content width, as part of the
-   site's design (decorative: no caption or link, hidden from screen readers). The crop is set per width:
-   --z enlarges the painting inside the band, --px / --py choose which part shows (0 = left/top, 1 = right/bottom).
-   Set low in the painting (Mat's choice): the storefronts and parked cars along the street. */
-.hero { position: relative; overflow: hidden; height: 210px; margin-top: 4px; --z: 1; --px: .5; --py: .95; }
-.hero img { position: absolute; max-width: none; width: calc(var(--z) * 100%); height: calc(var(--z) * 100%);
-  left: calc((1 - var(--z)) * 100% * var(--px)); top: calc((1 - var(--z)) * 100% * var(--py));
-  object-fit: cover; object-position: calc(var(--px) * 100%) calc(var(--py) * 100%); }
-@media (max-width: 959px) { .hero { height: 170px; --z: 1.3; --px: .4; --py: .95; } }
-@media (max-width: 559px) { .hero { height: 130px; --z: 1.6; --px: .3; --py: 1; } }
+/* Opening image: a band of Northampton Panorama, edge to edge of the screen (outside the column grid), as
+   part of the site's design (decorative: no caption or link, hidden from screen readers). The band keeps a set
+   height per screen size and the painting fills it (object-fit: cover), so it zooms with the screen width:
+   wider screens show a thinner slice in more detail. The crop sits low, on the storefronts and parked cars. */
+.hero { position: relative; overflow: hidden; height: 210px; width: 100vw; margin: 4px 0 0 calc(50% - 50vw); }
+.hero img { display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 95%; }
+@media (max-width: 959px) { .hero { height: 170px; } }
+@media (max-width: 559px) { .hero { height: 130px; } .hero img { object-position: 35% 100%; } }
 #main > section.section:first-of-type { padding-top: 48px; }
 @media (min-width: 800px) { #main > section.section:first-of-type { padding-top: 64px; } }
 @media (max-width: 559px) { #main > section.section:first-of-type { padding-top: 32px; } }

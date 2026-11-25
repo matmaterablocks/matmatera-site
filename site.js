@@ -477,7 +477,10 @@
   var hasStrip = function () { return strip && !strip.hidden; };
   function place() {
     head.style.top = '0px';
-    var off = nav.getBoundingClientRect().top - head.getBoundingClientRect().top - 6;
+    // Phones: the section links have a hairline along their top; pull the header up past it so the stuck bar
+    // starts right under the exhibition bar with no stray line. Wider screens keep a 6px margin.
+    var ncs = getComputedStyle(nav), bt = parseFloat(ncs.borderTopWidth) || 0;
+    var off = nav.getBoundingClientRect().top - head.getBoundingClientRect().top + (bt ? bt + (parseFloat(ncs.paddingTop) || 0) : -6);
     lift = Math.max(0, Math.round(off));
     var sh = hasStrip() ? 'var(--strip-h, 0px)' : '0px';
     head.style.top = 'calc(' + sh + ' - ' + lift + 'px)';
