@@ -23,11 +23,11 @@
     var count = el('p', 'view-count grey');
     prev.setAttribute('aria-label', 'Previous');
     next.setAttribute('aria-label', 'Next');
-    prev.innerHTML = '<svg viewBox="0 0 24 40" aria-hidden="true"><path d="M20 3L4 20l16 17"/></svg>';
-    next.innerHTML = '<svg viewBox="0 0 24 40" aria-hidden="true"><path d="M4 3l16 17L4 37"/></svg>';
+    prev.innerHTML = '<svg viewBox="0 0 10 18" aria-hidden="true"><path d="M8.5 1.5 1.5 9l7 7.5"/></svg>';
+    next.innerHTML = '<svg viewBox="0 0 10 18" aria-hidden="true"><path d="M1.5 1.5 8.5 9l-7 7.5"/></svg>';
     var close = el('button', 'view-close');
     close.setAttribute('aria-label', 'Close');
-    close.innerHTML = '<svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20"/><path d="M15 15l14 14M29 15L15 29"/></svg>';
+    close.innerHTML = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11"/></svg>';
     prev.type = next.type = close.type = 'button';
     var stage = el('div', 'view-stage');
     var image = el('img');
@@ -48,15 +48,19 @@
     // Previous / Next and swipe stay inside the section the work belongs to (Paintings, Pastels...),
     // and skip works that are folded away under "See all". Home has no section ids, so it steps through all.
     var group = zooms;
+    // A work outside the sections (the featured painting) names its section in data-group and leads it.
+    function secOf(z) {
+      var g = z.getAttribute('data-group');
+      return g ? document.getElementById(g) : (z.closest ? z.closest('section[id]') : null);
+    }
     function groupFor(a) {
-      var sec = a.closest ? a.closest('section[id]') : null;
+      var sec = secOf(a);
       return zooms.filter(function (z) {
-        var s2 = z.closest ? z.closest('section[id]') : null;
-        return s2 === sec && !(z.closest && z.closest('[hidden]'));
+        return secOf(z) === sec && !(z.closest && z.closest('[hidden]'));
       });
     }
 
-    var at = 0;
+    var at = 0, startAt = 0;
     var opener = null;
 
     function captionText(a, cls, attr) {
@@ -66,9 +70,28 @@
       return v || a.getAttribute(attr) || '';
     }
 
+    // Size the picture's box to the picture itself (never cropped), so the caption sits right under it
+    // instead of at the bottom of the screen. The ratio comes from the grid image's width/height
+    // attributes, so it is known before the large file loads.
+    var ratio = 0;
+    function fit() {
+      if (!ratio) { inner.classList.remove('fit'); return; }
+      var cs = getComputedStyle(inner);
+      var avail = inner.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - cap.offsetHeight;
+      var h = Math.max(120, Math.floor(Math.min(avail, dialog.clientWidth * ratio)));
+      inner.style.setProperty('--fit-h', h + 'px');
+      inner.style.setProperty('--fit-w', Math.floor(h / ratio) + 'px');
+      // Previous / Next: just outside the picture if a whole circle (40px) fits beside it with a margin,
+      // otherwise 12px inside the picture's edge, so a circle never straddles the edge or the screen edge.
+      var side = (dialog.clientWidth - h / ratio) / 2;
+      inner.style.setProperty('--step-x', Math.round(side >= 40 + 24 ? side - 40 - 12 : Math.max(0, side) + 12) + 'px');
+      inner.classList.add('fit');
+    }
     function show(i) {
       at = (i + group.length) % group.length;
       var a = group[at];
+      var tw = a.querySelector('img');
+      ratio = tw ? (+tw.getAttribute('height') || 0) / (+tw.getAttribute('width') || 1) : 0;
       count.textContent = (at + 1) + ' of ' + group.length;
       var thumb = a.querySelector('img');
       // Title and medium come from the caption under the picture, so retyping a caption by hand
@@ -95,6 +118,8 @@
       var print = a.getAttribute('data-print');
       buy.hidden = !print;
       if (print) buy.href = print; else buy.removeAttribute('href');
+      links.hidden = inquire.hidden && buy.hidden;
+      fit(); fit();  // second pass: the caption may rewrap at the picture's width
     }
 
     zooms.forEach(function (a) {
@@ -102,12 +127,14 @@
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
         e.preventDefault();
         opener = a;
-        group = groupFor(a);
-        if (group.indexOf(a) < 0) group = [a];
+        var target = a;
+        group = groupFor(target);
+        if (group.indexOf(target) < 0) group = [target];
         var one = group.length < 2;
         prev.hidden = one; next.hidden = one; count.hidden = one;
-        show(group.indexOf(a));
         dialog.showModal();
+        show(group.indexOf(target));
+        startAt = at;
         close.focus();
         if (image.complete && image.naturalWidth) { toneRead(); tone(); }
       });
@@ -195,10 +222,18 @@
     function zoomMax() { return Math.max(3, Math.min(8, 1 / fitted().r)); }  // 1/r < 1 for stretched pictures, so 3x
     function zoomApply(ease) {
       var f = fitted();
-      var mx = Math.max(0, (f.w * z.s - f.sw) / 2);
-      var my = Math.max(0, (f.h * z.s - f.sh) / 2);
-      z.x = Math.max(-mx, Math.min(mx, z.x));
-      z.y = Math.max(-my, Math.min(my, z.y));
+      // Panning limits. Once the zoomed picture is larger than the whole screen in a direction, it can be
+      // moved until its edge meets the screen edge (past the breathing room around the fitted picture);
+      // otherwise it stays within its own box, as before.
+      var sb = stage.getBoundingClientRect();
+      function clampAxis(v, size, box, start, screen) {
+        var c = start + box / 2;  // the box's middle on screen
+        if (size > screen) return Math.max(screen - c - size / 2, Math.min(size / 2 - c, v));
+        var m = Math.max(0, (size - box) / 2);
+        return Math.max(-m, Math.min(m, v));
+      }
+      z.x = clampAxis(z.x, f.w * z.s, f.sw, sb.left, window.innerWidth);
+      z.y = clampAxis(z.y, f.h * z.s, f.sh, sb.top, window.innerHeight);
       stage.classList.toggle('ease', !!ease);
       stage.classList.toggle('zoomed', z.s > 1);
       image.style.transform = z.s === 1 ? '' : 'translate(' + z.x + 'px,' + z.y + 'px) scale(' + z.s + ')';
@@ -300,7 +335,7 @@
         else if (e.key === '-') zoomTo(z.s / 1.5, 0, 0, true);
         else if (e.key === '0') zoomTo(1, 0, 0, true);
       });
-      window.addEventListener('resize', function () { if (dialog.open) zoomApply(false); });
+      window.addEventListener('resize', function () { if (dialog.open) { fit(); zoomApply(false); } });
     }
 
     // Touch: swipe left for the next work, right for the previous one.
@@ -326,7 +361,7 @@
       zoomReset();
       image.removeAttribute('src');
       // Stepping may have moved on: return to the work last shown if the opener is not it.
-      var back = group[at] || opener;
+      var back = (at === startAt && opener) ? opener : (group[at] || opener);
       if (back && back.focus) back.focus();
       opener = null;
     });
@@ -435,24 +470,30 @@
   if (!nav) return;
   var root = document.documentElement;
   var lift = 0;
+  // The exhibition bar is sticky too (Nov 2026), so the section links stop just under it.
+  // Its height is the CSS --strip-h, which can change while scrolling (phones), so the header's sticky top
+  // is written against it rather than as a fixed number. Hidden after the show: no strip, no offset.
+  var strip = document.querySelector('.show-line');
+  var hasStrip = function () { return strip && !strip.hidden; };
   function place() {
     head.style.top = '0px';
     var off = nav.getBoundingClientRect().top - head.getBoundingClientRect().top - 6;
     lift = Math.max(0, Math.round(off));
-    head.style.top = (-lift) + 'px';
-    root.style.setProperty('--bar-h', (head.offsetHeight - lift) + 'px');
+    var sh = hasStrip() ? 'var(--strip-h, 0px)' : '0px';
+    head.style.top = 'calc(' + sh + ' - ' + lift + 'px)';
+    root.style.setProperty('--bar-h', 'calc(' + sh + ' + ' + (head.offsetHeight - lift) + 'px)');
     stuck();
   }
-  // How far down the page the header starts (the exhibition line sits above it).
-  function natural() {
-    var y = 0;
-    for (var n = head.previousElementSibling; n; n = n.previousElementSibling) {
-      var pos = getComputedStyle(n).position;
-      if (pos !== 'absolute' && pos !== 'fixed' && !n.hidden) y += n.offsetHeight;
-    }
-    return y;
+  // Phones: the exhibition bar slims to EXHIBITION alone once the visitor scrolls, and opens up again at the top.
+  var phone = window.matchMedia ? window.matchMedia('(max-width: 559px)') : null;
+  function compact() {
+    var on = !!(hasStrip() && phone && phone.matches && window.scrollY > 24);
+    if (root.classList.contains('show-compact') !== on) root.classList.toggle('show-compact', on);
   }
-  function stuck() { head.classList.toggle('is-stuck', window.scrollY > lift + natural()); }
+  window.addEventListener('scroll', compact, { passive: true });
+  window.addEventListener('resize', compact);
+  compact();
+  function stuck() { head.classList.toggle('is-stuck', window.scrollY > lift + 1); }
   // Phones only (artwork.css hides it on wider screens): an up arrow at the end of the bar, shown once the
   // bar is stuck, that goes back to the top of the page.
   var up = document.createElement('button');
@@ -514,7 +555,6 @@
     return;
   }
   if (typeof pop.showModal !== 'function') return;
-  var key = 'show-closed:' + (pop.getAttribute('data-until') || '');
   var card = pop.querySelector('.show-card');
   var closing = false;
   // While the card is up, the top line's words wait; they appear once the card has folded into the line.
@@ -547,7 +587,7 @@
       landed();
     };
   }
-  pop.addEventListener('close', function () { try { localStorage.setItem(key, '1'); } catch (e) {} landed(); });
+  pop.addEventListener('close', landed);
   // Escape folds it up the same way.
   pop.addEventListener('cancel', function (e) { e.preventDefault(); shut(); });
   pop.querySelector('.show-close').addEventListener('click', shut);
@@ -562,12 +602,10 @@
       open();
     });
   }
-  var seen = false;
-  try { seen = localStorage.getItem(key) === '1'; } catch (e) {}
-  // Not on a section's own page or when arriving at a section link; those visitors came for the artwork.
-  // #show always opens it (handy for checking it again on a device that has already closed it).
+  // The card opens only when the exhibition bar is clicked (Nov 2026: no automatic pop-up), or from a
+  // link to #show. The bar's one-time arrival animation is marked as seen for this browser session.
   if (location.hash === '#show') open();
-  else if (!seen && !location.search && !location.hash) open();
+  try { sessionStorage.setItem('show-intro', '1'); } catch (e) {}
 })();
 
 /* "Print available" under grid captions was removed (Nov 2026): Mat wants print and sold info
@@ -601,4 +639,52 @@
       go.focus();
     });
   });
+})();
+
+/* Artwork grid: masonry (Nov 2026 experiment). The markup stays the plain list of <figure class="work">
+   (the Drive sync adds to it); this only positions it. Column count and gaps come from the CSS grid rules
+   (3 / 2 / 2 columns), read before each layout. Each work, in page order, goes to the column whose bottom is
+   highest (leftmost on a tie), so every work starts at or below the one before it: reading top to bottom
+   follows the page order, which is also the keyboard order. Nothing is cropped or reordered.
+   To turn it off, delete this block. */
+(function () {
+  if (!document.querySelector('.nav-art') || !window.getComputedStyle) return;
+  var lists = Array.prototype.slice.call(document.querySelectorAll('#main section .works'));
+  if (!lists.length) return;
+  function px(v) { return parseFloat(v) || 0; }
+  function layout(list) {
+    list.classList.remove('masonry');
+    list.style.height = '';
+    var items = Array.prototype.filter.call(list.children, function (n) { return n.classList.contains('work') && !n.hidden; });
+    items.forEach(function (n) { n.style.width = n.style.transform = ''; });
+    var cs = getComputedStyle(list);
+    // The grid has two tracks per column (see artwork.css), so half the track count is the column count.
+    var cols = Math.round(cs.gridTemplateColumns.split(' ').filter(Boolean).length / 2);
+    if (cols < 2 || !items.length) return;
+    var colGap = px(cs.columnGap), rowGap = px(cs.rowGap);
+    var w = list.clientWidth;
+    var colW = (w - colGap * (cols - 1)) / cols;
+    list.classList.add('masonry');
+    items.forEach(function (n) { n.style.width = colW + 'px'; });
+    var hs = items.map(function (n) { return n.getBoundingClientRect().height; });
+    var bottoms = [];
+    for (var c = 0; c < cols; c++) bottoms.push(0);
+    items.forEach(function (n, i) {
+      var best = 0;
+      for (var c = 1; c < cols; c++) if (bottoms[c] < bottoms[best] - 1) best = c;
+      n.style.transform = 'translate(' + Math.round(best * (colW + colGap)) + 'px,' + Math.round(bottoms[best]) + 'px)';
+      bottoms[best] += hs[i] + rowGap;
+    });
+    list.style.height = Math.max(0, Math.max.apply(null, bottoms) - rowGap) + 'px';
+  }
+  function all() { lists.forEach(layout); }
+  all();
+  var lastW = window.innerWidth, t = 0;
+  window.addEventListener('resize', function () {
+    if (window.innerWidth === lastW) return;  // phones fire resize when the address bar slides
+    lastW = window.innerWidth;
+    clearTimeout(t); t = setTimeout(all, 60);
+  });
+  window.addEventListener('load', all);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(all);
 })();

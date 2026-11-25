@@ -1,6 +1,6 @@
 /* matmatera.com. A white wall: one typeface, black text, the paintings carry the color.
    House rules: no rounded corners, shadows, gradients, pills, cards, blur, or scroll animation.
-   One exception: in dark mode only, each Artwork section opens with a black-to-charcoal fade (see --fade). */
+   (The dark-mode section fade was removed in Nov 2026; --fade stays defined as none.) */
 :root {
   --bg: #fff;
   --ink: #111;
@@ -15,13 +15,15 @@
   --fade: none;          /* Artwork section fade, dark mode only */
   --fade-soft: none;     /* Info section fade, dark mode only */
   --band: #ece8e2;       /* Info: hard-edged pale warm stone behind Contact, light mode only */
+  --panel: var(--bg);    /* header backing: the wall in light mode, a deep blue panel in dark */
+  --strip: #1d4155;      /* exhibition strip */
 }
-/* Dark wall. Follows the device setting; the footer switch overrides it and is remembered.
-   The wall stays a neutral charcoal so it doesn't tint the paintings; the type and rules carry a
-   slight warm cast (soft off-white, not pure white). Grey is lifted to about 9.5:1 on the wall so captions
-   stay crisp; rules are a step lighter so section lines read. */
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #121212; --ink: #f2eee8; --grey: #c2bbb1; --rule: #4a443d; --view-bg: #000; --fade: linear-gradient(rgba(0,0,0,0) 0, rgba(0,0,0,.35) 8px, rgba(0,0,0,.8) 22px, #000 40px, rgba(0,0,0,.72) 18%, rgba(0,0,0,.42) 42%, rgba(0,0,0,.16) 70%, rgba(0,0,0,0) 100%); --fade-soft: var(--fade); --band: transparent; color-scheme: dark; } }
-:root[data-theme="dark"] { --bg: #121212; --ink: #f2eee8; --grey: #c2bbb1; --rule: #4a443d; --view-bg: #000; --fade: linear-gradient(rgba(0,0,0,0) 0, rgba(0,0,0,.35) 8px, rgba(0,0,0,.8) 22px, #000 40px, rgba(0,0,0,.72) 18%, rgba(0,0,0,.42) 42%, rgba(0,0,0,.16) 70%, rgba(0,0,0,0) 100%); --fade-soft: var(--fade); --band: transparent; color-scheme: dark; }
+/* Dark wall (refined Nov 2026). Follows the device setting; the footer switch overrides it and is remembered.
+   A deep blue-slate night wall taken from the light theme's deep blue, instead of near-black, so the two
+   themes read as one site. Contrast on the wall: text 13.6:1, grey 8.7:1, peach accent 7.8:1.
+   The black fade under section headings is gone; the colored rule does that job. */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #111d24; --ink: #e9e5dd; --grey: #aebbc1; --rule: #304650; --panel: #192b35; --strip: #204457; --view-bg: #111d24; --fade: none; --fade-soft: none; --band: transparent; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #111d24; --ink: #e9e5dd; --grey: #aebbc1; --rule: #304650; --panel: #192b35; --strip: #204457; --view-bg: #111d24; --fade: none; --fade-soft: none; --band: transparent; color-scheme: dark; }
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 400 1rem/1.5 var(--font); }

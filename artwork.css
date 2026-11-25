@@ -12,9 +12,9 @@
   --r-oils: #b5512a; --r-pastels: #3f86b8; --r-charcoal: #1d3341; --r-digital: #8f8446;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --ink: #f2eee8; --grey: #c2bbb1; --accent: #eea77e; --r-oils: #eea77e; --r-pastels: #81c2ed; --r-charcoal: #e1dddf; --r-digital: #b1a66e; } }
+  --ink: #e9e5dd; --grey: #aebbc1; --accent: #dfa17f; --r-oils: #dfa17f; --r-pastels: #81c2ed; --r-charcoal: #e1dddf; --r-digital: #b1a66e; } }
 :root[data-theme="dark"] {
-  --ink: #f2eee8; --grey: #c2bbb1; --accent: #eea77e; --r-oils: #eea77e; --r-pastels: #81c2ed; --r-charcoal: #e1dddf; --r-digital: #b1a66e; }
+  --ink: #e9e5dd; --grey: #aebbc1; --accent: #dfa17f; --r-oils: #dfa17f; --r-pastels: #81c2ed; --r-charcoal: #e1dddf; --r-digital: #b1a66e; }
 
 /* Section heads: larger names over a thick rule in a color taken from the paintings, one per medium. */
 :is(#oils, #pastels, #charcoal, #digital) > .section-head { border-bottom: 2px solid var(--rule-c, var(--ink)); padding-bottom: 14px; }
@@ -127,3 +127,153 @@ dialog.show-pop.is-closing::backdrop { background-color: rgba(18, 18, 18, 0); }
 .show-line.is-waiting a { opacity: 0; transition: none; }
 /* The smallest phones: a touch smaller so the four links and the arrow fit on one line. */
 @media (max-width: 369px) { .site-head:has(.nav-art) .nav-art { gap: 0 6px; font-size: .9375rem; } .bar-top { width: 28px; margin-right: -4px; } }
+
+/* ===== Design refinement, Nov 2026 (structured-grid version) ===== */
+
+/* Exhibition bar (Nov 2026, compact): one slim line at every width, stuck to the top. The whole bar opens
+   the show card. Desktop: name, gallery, city, dates and View. Tablet: shorter (no city or year).
+   Phone: name and dates, and once the visitor scrolls it slims down to just EXHIBITION.
+   Its height is fixed per width (--strip-h) so the sticky section links can follow it smoothly. */
+:root { --strip-h: 34px; }
+.show-line { position: sticky; top: 0; z-index: 4; height: var(--strip-h); overflow: hidden; background: var(--strip); font-size: .8125rem; line-height: 1; }
+.show-line a { display: flex; align-items: center; height: 100%; padding: 0 var(--pad); white-space: nowrap; }
+.show-line .show-k { flex: none; color: #eea77e; font-size: .6875rem; letter-spacing: .14em; text-transform: uppercase; margin: 0 4px 0 -6px; padding: 3px 6px; }
+:root[data-theme="dark"] .show-line .show-k { color: #dfa17f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .show-line .show-k { color: #dfa17f; } }
+.show-line .show-more { display: flex; align-items: center; min-width: 0; overflow: hidden; color: #d6dde0; }
+.show-line .show-name { font-weight: 500; color: var(--band-ink); }
+.show-line .show-name, .show-line .show-gal { margin-left: 6px; }
+.show-line .show-sep { padding: 0 .45em; opacity: .55; }
+.show-line .w-short { display: none; }
+.show-line .show-view { flex: none; margin-left: 18px; color: var(--band-ink); font-size: .6875rem; letter-spacing: .12em; text-transform: uppercase; }
+.show-line .show-view::after { content: "\00a0\2192"; letter-spacing: 0; }
+.show-line a:hover .show-view { text-decoration: underline; text-underline-offset: .2em; }
+.show-line .show-what::after, .show-line .show-b::after { content: none; }
+/* Tablet: shorter text. */
+@media (max-width: 959px) {
+  :root { --strip-h: 32px; }
+  .show-line .show-city, .show-line .show-year, .show-line .w-long { display: none; }
+  .show-line .w-short { display: inline; }
+}
+/* Phone: name and dates, View at the right; slims to EXHIBITION alone once scrolling starts (site.js). */
+@media (max-width: 559px) {
+  :root { --strip-h: 32px; }
+  :root.show-compact { --strip-h: 22px; }
+  .show-line { font-size: .8125rem; }
+  .show-line .show-gal { display: none; }
+  .show-line .show-view { margin-left: auto; padding-left: 12px; }
+  .show-line .show-more, .show-line .show-view { transition: opacity .2s ease; }
+  .show-compact .show-line .show-more, .show-compact .show-line .show-view { opacity: 0; visibility: hidden; }
+  .show-compact .show-line .show-k { font-size: .625rem; letter-spacing: .18em; padding: 2px 6px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .show-line { transition: height .25s ease; }
+  .site-head:has(.nav-art) { transition: top .25s ease; }
+}
+
+/* First arrival in a session only: the bar eases down and the label glows once (index.html sets the class). */
+@keyframes show-in { from { transform: translateY(-100%); opacity: 0; } }
+@keyframes show-glow { 0%, 100% { background: transparent; } 35% { background: rgba(238, 167, 126, .2); } }
+@media (prefers-reduced-motion: no-preference) {
+  .show-intro .show-line { animation: show-in .45s cubic-bezier(.2, .7, .2, 1) .15s backwards; }
+  .show-intro .show-line .show-k { animation: show-glow 1.6s ease .6s 1; }
+}
+/* The show card in dark mode matches the bar. */
+:root[data-theme="dark"] { --card: #204457; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --card: #204457; } }
+
+/* Dark mode: the header sits on a deep blue panel, so the top of the page has a defined shape. */
+.site-head:has(.nav-art)::before { background: var(--panel); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) main > .pair:last-child::before { background: var(--panel); } }
+:root[data-theme="dark"] main > .pair:last-child::before { background: var(--panel); }
+
+/* Opening image: a cropped band of Northampton Panorama across the full content width, as part of the
+   site's design (decorative: no caption or link, hidden from screen readers). The crop is set per width:
+   --z enlarges the painting inside the band, --px / --py choose which part shows (0 = left/top, 1 = right/bottom).
+   Set low in the painting (Mat's choice): the storefronts and parked cars along the street. */
+.hero { position: relative; overflow: hidden; height: 210px; margin-top: 4px; --z: 1; --px: .5; --py: .95; }
+.hero img { position: absolute; max-width: none; width: calc(var(--z) * 100%); height: calc(var(--z) * 100%);
+  left: calc((1 - var(--z)) * 100% * var(--px)); top: calc((1 - var(--z)) * 100% * var(--py));
+  object-fit: cover; object-position: calc(var(--px) * 100%) calc(var(--py) * 100%); }
+@media (max-width: 959px) { .hero { height: 170px; --z: 1.3; --px: .4; --py: .95; } }
+@media (max-width: 559px) { .hero { height: 130px; --z: 1.6; --px: .3; --py: 1; } }
+#main > section.section:first-of-type { padding-top: 48px; }
+@media (min-width: 800px) { #main > section.section:first-of-type { padding-top: 64px; } }
+@media (max-width: 559px) { #main > section.section:first-of-type { padding-top: 32px; } }
+
+/* Structured grid: equal columns, tops aligned in each row, every picture whole at its own proportions,
+   caption right under it, page order kept. Built on twice as many tracks as columns (each work spans two),
+   so a last work left on its own sits centered under the row above at the same width, and a last pair
+   in a three-column row is centered as a pair. No placeholders, nothing stretched. */
+.works { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.works > .work { grid-column: span 2; }
+.works > .work:nth-child(2n+1):last-child { grid-column: 2 / span 2; }
+@media (min-width: 960px) {
+  .works { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .works > .work:nth-child(2n+1):last-child { grid-column: span 2; }
+  .works > .work:nth-child(3n+1):last-child { grid-column: 3 / span 2; }
+  .works > .work:nth-child(3n+1):nth-last-child(2) { grid-column: 2 / span 2; }
+  .works > .work:nth-child(3n+2):last-child { grid-column: 4 / span 2; }
+}
+
+/* Large view: the caption sits right under the picture; Previous / Next are small outlined circles
+   just outside the picture's left and right edges (over its edges when the picture fills the width). */
+.view-inner { display: flex; flex-direction: column; justify-content: center; gap: 0; padding: 0 var(--pad) 10px; }
+.view-main { flex: 1 1 auto; }
+.view-inner.fit .view-main { flex: 0 0 auto; height: var(--fit-h); }
+.view-cap { flex: none; display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: baseline; gap: 2px 20px; padding: 10px 0 0; width: min(100%, var(--fit-w, 100%)); margin: 0 auto; }
+.view-cap > p:first-child { flex: 0 1 auto; min-width: 0; }
+.view-cap .view-count { margin-left: auto; }
+.view-links { gap: 0 20px; }
+.view-links a { padding: 6px 0; }
+.view-links[hidden], .view-links a[hidden] { display: none; }
+@media (max-width: 699px) {
+  .view-cap { gap: 0 16px; padding-top: 8px; }
+  .view-cap > p:first-child { flex: 1 0 100%; }
+}
+.view-step, .view-close {
+  width: 40px; height: 40px; margin: -20px 0 0; border-radius: 50%;
+  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  background: color-mix(in srgb, var(--view-bg) 55%, transparent);
+  transition: background-color .15s ease, border-color .15s ease;
+}
+.view-step svg { width: 10px; height: 18px; stroke-width: 1.75; }
+.view-step:hover svg { stroke-width: 1.75; }
+.view-step:hover, .view-close:hover { border-color: currentColor; background: color-mix(in srgb, var(--view-bg) 80%, transparent); }
+.view-step.prev { left: max(10px, calc(50% - var(--fit-w, 100vw) / 2 - 56px)); }
+.view-step.next { right: max(10px, calc(50% - var(--fit-w, 100vw) / 2 - 56px)); }
+.view-close { top: 12px; right: 12px; width: 36px; height: 36px; margin: 0; }
+@media (min-width: 800px) { .view-close { top: 16px; right: 24px; } }
+.view-close svg { width: 14px; height: 14px; stroke-width: 1.5; }
+.view-step.tone-light, .view-close.tone-light { background: rgba(17, 29, 36, .34); }
+.view-step.tone-dark, .view-close.tone-dark { background: rgba(244, 238, 227, .5); }
+.view-step.tone-light:hover, .view-close.tone-light:hover { background: rgba(17, 29, 36, .55); }
+.view-step.tone-dark:hover, .view-close.tone-dark:hover { background: rgba(244, 238, 227, .75); }
+
+/* Masonry comparison version (site.js): each column runs straight down; works keep their order and
+   proportions, captions stay under their pictures. Without JavaScript the structured grid is used. */
+.works.masonry { display: block; position: relative; }
+.works.masonry > .work { position: absolute; top: 0; left: 0; }
+.works.masonry > .work[hidden] { display: none; }
+/* Large view, breathing room (Nov 2026): the fitted picture starts 28px below the top edge (24px on phones).
+   Zoomed in, the picture may spread past its box to the screen edges, under the caption and controls. */
+dialog.view { overflow: hidden; }
+.view-inner { padding-top: 28px; }
+@media (max-width: 699px) { .view-inner { padding-top: 24px; } }
+.view-stage.zoomed { overflow: visible; }
+/* Close stays visible on hover: the old filled-circle hover turned the X the same color as the wall.
+   Hover now only darkens the round backing and firms up its outline; the X keeps its own color. */
+dialog.view .view-close:hover path, dialog.view .view-close:focus-visible path { stroke: currentColor; }
+dialog.view .view-close:hover circle { fill: none; }
+dialog.view .view-close:hover svg { stroke-width: 2; }
+
+/* Large view controls never cut off (Nov 2026). Previous / Next sit fully outside the picture when there is
+   room beside it, otherwise fully inside its edge, never straddling it (site.js sets --step-x). On phones the
+   close button has its own strip above the picture, so its circle never overlaps the picture's top edge.
+   Screen insets (notches, rounded corners) are respected. */
+.view-step.prev { left: calc(var(--step-x, 12px) + env(safe-area-inset-left, 0px)); }
+.view-step.next { right: calc(var(--step-x, 12px) + env(safe-area-inset-right, 0px)); }
+.view-close { top: calc(12px + env(safe-area-inset-top, 0px)); right: calc(12px + env(safe-area-inset-right, 0px)); }
+@media (min-width: 800px) { .view-close { top: calc(16px + env(safe-area-inset-top, 0px)); right: calc(24px + env(safe-area-inset-right, 0px)); } }
+@media (max-width: 699px), (max-width: 1099px) and (orientation: portrait) { .view-inner { padding-top: calc(60px + env(safe-area-inset-top, 0px)); padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); } }
+.view-main { overflow: visible; }
