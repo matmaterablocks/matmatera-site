@@ -275,3 +275,11 @@ dialog.view .view-close:hover svg { stroke-width: 2; }
 @media (min-width: 800px) { .view-close { top: calc(16px + env(safe-area-inset-top, 0px)); right: calc(24px + env(safe-area-inset-right, 0px)); } }
 @media (max-width: 699px), (max-width: 1099px) and (orientation: portrait) { .view-inner { padding-top: calc(60px + env(safe-area-inset-top, 0px)); padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); } }
 .view-main { overflow: visible; }
+
+/* Section links land on the section's heading, not on the empty space above it, so the end of the previous
+   section (a caption line) isn't left showing under the bar. Each section's own top padding is cancelled
+   except 16px, which with the 12px scroll padding leaves the heading 28px below the bar at every width. */
+#oils { scroll-margin-top: -16px; }
+:is(#pastels, #charcoal, #digital) { scroll-margin-top: -40px; }
+@media (min-width: 560px) { #oils { scroll-margin-top: -32px; } }
+@media (min-width: 800px) { #oils { scroll-margin-top: -48px; } :is(#pastels, #charcoal, #digital) { scroll-margin-top: -56px; } }
