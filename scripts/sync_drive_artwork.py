@@ -2,8 +2,12 @@
 """
 sync_drive_artwork.py
 
-Automated sync script that monitors the Google Drive folder "matmatera-incoming"
-for new paintings/artwork images and accompanying metadata notes.
+Automated sync script that monitors the Google Drive folder "matmatera-incoming".
+
+Easiest way to add art (no note needed): drop the image into one of the section
+subfolders Paintings, Pastels, Drawings or Digital. The folder sets the section and
+default medium; the file name is the title. Optional: "Title - Medium, 9x12".
+Loose images in matmatera-incoming itself still work with a same-named note file.
 
 For each new artwork:
   1. Downloads and converts image to optimized .webp (max 1600px longest edge, q=82)
@@ -341,8 +345,136 @@ def move_file_to_processed(service, file_id: str, incoming_folder_id: str, proce
     ).execute()
 
 
+# Drop-in subfolders of matmatera-incoming: the folder sets the section and the
+# default medium, so no note file is needed. Order = how they are listed in Drive.
+SECTION_SUBFOLDERS = [
+    ("Paintings", "Paintings", "Oil on wood"),
+    ("Pastels", "Pastels", "Oil pastel"),
+    ("Drawings", "Drawings", "Charcoal"),
+    ("Digital", "Digital", "Digital"),
+]
+
+DIMENSIONS_RE = re.compile(r"^\s*\d+(\.\d+)?\s*(\"|in)?\s*[x\u00d7]\s*\d+(\.\d+)?\s*(\"|in)?\s*$", re.I)
+
+
+def title_from_stem(stem: str) -> str:
+    """Turn a file name into a title: keep the user's capitals if any, else capitalize words."""
+    text = re.sub(r"[_]+", " ", stem).strip()
+    text = re.sub(r"\s+", " ", text)
+    if text and text == text.lower():
+        text = " ".join(w[:1].upper() + w[1:] for w in text.split(" "))
+    return text or "Untitled"
+
+
+def parse_file_name(stem: str) -> Dict[str, str]:
+    """
+    'Pebbles' -> title only.
+    'Pebbles - Charcoal on paper, 9x12' -> title, medium, dimensions.
+    The part after the first ' - ' is the medium; a trailing 'NxM' piece is the size.
+    """
+    out = {"title": "", "medium": "", "dimensions": ""}
+    head, sep, tail = stem.partition(" - ")
+    out["title"] = title_from_stem(head)
+    if sep and tail.strip():
+        parts = [p.strip() for p in tail.split(",") if p.strip()]
+        if parts and DIMENSIONS_RE.match(parts[-1]):
+            out["dimensions"] = parts.pop()
+        if parts:
+            medium = ", ".join(parts)
+            out["medium"] = medium[:1].upper() + medium[1:]
+    return out
+
+
+def split_items(items: List[Dict]) -> Tuple[List[Dict], Dict[str, Dict]]:
+    image_files, note_files = [], {}
+    for item in items:
+        name = item["name"]
+        ext = Path(name).suffix.lower()
+        base = Path(name).stem.lower().strip()
+        if ext in IMAGE_EXTENSIONS or item.get("mimeType", "").startswith("image/"):
+            image_files.append(item)
+        elif ext in NOTE_EXTENSIONS or item.get("mimeType") == "application/vnd.google-apps.document":
+            note_files[base] = item
+    return image_files, note_files
+
+
+def publish_images(service, image_files, note_files, parent_id, processed_id,
+                   section_name: Optional[str] = None, default_medium: Optional[str] = None) -> int:
+    count = 0
+    for img_item in image_files:
+        img_name = img_item["name"]
+        stem = Path(img_name).stem
+        base_clean = stem.lower().strip()
+
+        note_item = note_files.get(base_clean)
+        if not note_item and len(note_files) == 1 and len(image_files) == 1:
+            note_item = list(note_files.values())[0]
+
+        note_text = ""
+        if note_item:
+            try:
+                note_text = download_file_bytes(service, note_item).decode("utf-8", errors="replace")
+                note_text = note_text.replace("\ufeff", "")
+            except Exception as e:
+                print(f"[Warning] Failed to download note {note_item['name']}: {e}")
+
+        from_name = parse_file_name(stem)
+        metadata = parse_metadata(note_text, fallback_title=from_name["title"])
+        note_has = {k: bool(re.search(rf"^\s*{k}\s*:", note_text, re.I | re.M)) for k in ("medium", "dimensions", "section")}
+
+        if section_name and not note_has["section"]:
+            metadata["section"] = section_name
+        if not note_has["medium"]:
+            metadata["medium"] = from_name["medium"] or default_medium or metadata["medium"]
+        if not note_has["dimensions"] and from_name["dimensions"]:
+            metadata["dimensions"] = from_name["dimensions"]
+
+        title = metadata["title"]
+        medium = metadata["medium"]
+        dimensions = metadata["dimensions"]
+        alt = metadata["alt"]
+
+        section_id = resolve_section_id(metadata["section"])
+        folder, kind = SECTION_FOLDERS[section_id]
+        art_dir = ASSETS_DIR / folder
+        art_dir.mkdir(parents=True, exist_ok=True)
+
+        if not alt:
+            alt = f"{title}, {medium[:1].lower() + medium[1:]}, by Mat Matera"
+            if dimensions:
+                alt += f" ({dimensions})"
+
+        slug_base = slugify(title) or slugify(stem)
+        slug = slug_base
+        dest_path = art_dir / f"{slug}.webp"
+        counter = 2
+        while dest_path.exists():
+            slug = f"{slug_base}-{counter}"
+            dest_path = art_dir / f"{slug}.webp"
+            counter += 1
+
+        print(f"Downloading {img_name}...")
+        img_bytes = download_file_bytes(service, img_item)
+        print(f"Optimizing to WebP ({dest_path.name})...")
+        width, height = optimize_image(img_bytes, dest_path)
+
+        figure_html = build_figure_html(f"assets/{folder}/{slug}.webp", title, medium, alt, width, height)
+        print(f"Updating index.html (section: {section_id})...")
+        insert_into_artwork_html(figure_html, section_id)
+
+        print(f"Moving {img_name} to 'processed'...")
+        move_file_to_processed(service, img_item["id"], parent_id, processed_id)
+        if note_item:
+            move_file_to_processed(service, note_item["id"], parent_id, processed_id)
+            note_files.pop(Path(note_item["name"]).stem.lower().strip(), None)
+
+        count += 1
+        print(f"Published '{title}' ({medium}) in {section_id} as {slug}.webp")
+    return count
+
+
 def sync():
-    """Main workflow: scan incoming folder, process artworks, update site."""
+    """Main workflow: scan incoming folder and its section subfolders, update site."""
     service = get_drive_service()
     if not service:
         # Exit with 0 so unattended workflows don't fail before credentials are provided
@@ -359,105 +491,26 @@ def sync():
         print("[Error] Failed to find or create 'processed' subfolder.")
         sys.exit(1)
 
-    items = list_folder_contents(service, incoming_id)
-    if not items:
-        print("No new files found in 'matmatera-incoming'.")
-        return
+    total = 0
 
-    # Categorize images and notes
-    image_files = []
-    note_files = {}
+    # 1. Section subfolders: folder = section, file name = title (no note needed).
+    for folder_name, section_name, default_medium in SECTION_SUBFOLDERS:
+        folder_id = find_or_create_folder(service, folder_name, parent_id=incoming_id)
+        if not folder_id:
+            continue
+        images, notes = split_items(list_folder_contents(service, folder_id))
+        if images:
+            print(f"Found {len(images)} image(s) in '{folder_name}'.")
+            total += publish_images(service, images, notes, folder_id, processed_id,
+                                    section_name=section_name, default_medium=default_medium)
 
-    for item in items:
-        name = item["name"]
-        ext = Path(name).suffix.lower()
-        base = Path(name).stem.lower().strip()
+    # 2. Loose files in matmatera-incoming itself (older way: a note sets the section).
+    images, notes = split_items(list_folder_contents(service, incoming_id))
+    if images:
+        print(f"Found {len(images)} image(s) directly in 'matmatera-incoming'.")
+        total += publish_images(service, images, notes, incoming_id, processed_id)
 
-        if ext in IMAGE_EXTENSIONS or item.get("mimeType", "").startswith("image/"):
-            image_files.append(item)
-        elif ext in NOTE_EXTENSIONS or item.get("mimeType") == "application/vnd.google-apps.document":
-            note_files[base] = item
-
-    if not image_files:
-        print("No new image files found in 'matmatera-incoming'.")
-        return
-
-    print(f"Found {len(image_files)} image(s) to process.")
-    processed_count = 0
-
-    for img_item in image_files:
-        img_name = img_item["name"]
-        stem = Path(img_name).stem
-        base_clean = stem.lower().strip()
-
-        # Find matching note or single note fallback
-        note_item = note_files.get(base_clean)
-        if not note_item and len(note_files) == 1 and len(image_files) == 1:
-            note_item = list(note_files.values())[0]
-
-        note_text = ""
-        if note_item:
-            try:
-                note_bytes = download_file_bytes(service, note_item)
-                note_text = note_bytes.decode("utf-8", errors="replace")
-            except Exception as e:
-                print(f"[Warning] Failed to download note {note_item['name']}: {e}")
-
-        # Derive human-friendly title from filename if note doesn't specify
-        human_title = re.sub(r"[-_]+", " ", stem).strip().title()
-        metadata = parse_metadata(note_text, fallback_title=human_title)
-
-        title = metadata["title"]
-        medium = metadata["medium"]
-        section = metadata["section"]
-        dimensions = metadata["dimensions"]
-        alt = metadata["alt"]
-
-        section_id = resolve_section_id(section)
-        folder, kind = SECTION_FOLDERS[section_id]
-        art_dir = ASSETS_DIR / folder
-        art_dir.mkdir(parents=True, exist_ok=True)
-
-        if not alt:
-            alt = f"{title}, {medium[:1].lower() + medium[1:]}, by Mat Matera"
-            if dimensions:
-                alt += f" ({dimensions})"
-
-        slug_base = slugify(title) or slugify(stem)
-        slug = slug_base
-        dest_path = art_dir / f"{slug}.webp"
-
-        # Avoid filename collisions with existing assets
-        counter = 2
-        while dest_path.exists():
-            slug = f"{slug_base}-{counter}"
-            dest_path = art_dir / f"{slug}.webp"
-            counter += 1
-
-        print(f"Downloading {img_name}...")
-        img_bytes = download_file_bytes(service, img_item)
-
-        print(f"Optimizing to WebP ({dest_path.name})...")
-        width, height = optimize_image(img_bytes, dest_path)
-
-        figure_html = build_figure_html(f"assets/{folder}/{slug}.webp", title, medium, alt, width, height)
-
-        print(f"Updating index.html (section: {section_id})...")
-        insert_into_artwork_html(figure_html, section_id)
-
-
-        # Move Drive files to processed subfolder
-        print(f"Moving {img_name} to 'processed' subfolder...")
-        move_file_to_processed(service, img_item["id"], incoming_id, processed_id)
-
-        if note_item:
-            print(f"Moving note {note_item['name']} to 'processed' subfolder...")
-            move_file_to_processed(service, note_item["id"], incoming_id, processed_id)
-
-        processed_count += 1
-        print(f"Successfully published '{title}' ({slug}.webp)!")
-
-    print(f"\nCompleted sync: {processed_count} artwork(s) published.")
+    print(f"\nCompleted sync: {total} artwork(s) published.")
 
 
 if __name__ == "__main__":
