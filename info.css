@@ -28,6 +28,7 @@
 /* Opening: a big detail of the painting, cut off at the edge of the screen, beside a few lines set large. */
 .info-hero { display: grid; grid-template-columns: var(--pad) minmax(0, 1fr) var(--pad); row-gap: 36px; }
 .info-detail, .info-intro { grid-column: 1 / -1; }
+.info-detail a.zoom { display: block; cursor: zoom-in; }
 .info-detail img { width: 100%; height: min(64vh, 560px); object-fit: cover; object-position: 50% 32%; }
 .info-detail figcaption { padding: 10px var(--pad) 0; font-size: .875rem; color: var(--grey); }
 .info-intro { grid-column: 2; }
