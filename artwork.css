@@ -187,17 +187,35 @@ dialog.show-pop.is-closing::backdrop { background-color: rgba(18, 18, 18, 0); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) main > .pair:last-child::before { background: var(--panel); } }
 :root[data-theme="dark"] main > .pair:last-child::before { background: var(--panel); }
 
-/* Opening image: a band of Northampton Panorama, edge to edge of the screen (outside the column grid), as
-   part of the site's design (decorative: no caption or link, hidden from screen readers). The band keeps a set
-   height per screen size and the painting fills it (object-fit: cover), so it zooms with the screen width:
-   wider screens show a thinner slice in more detail. The crop sits low, on the storefronts and parked cars. */
-.hero { position: relative; overflow: hidden; height: 210px; width: 100vw; margin: 4px 0 0 calc(50% - 50vw); }
-.hero img { display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 95%; }
-@media (max-width: 959px) { .hero { height: 170px; } }
-@media (max-width: 559px) { .hero { height: 130px; } .hero img { object-position: 35% 100%; } }
-#main > section.section:first-of-type { padding-top: 48px; }
-@media (min-width: 800px) { #main > section.section:first-of-type { padding-top: 64px; } }
-@media (max-width: 559px) { #main > section.section:first-of-type { padding-top: 32px; } }
+/* Opening image (Nov 26 2026): a masthead detail of Northampton Panorama, part of the site's design rather than a
+   listed work (decorative: no caption, link or hover; hidden from screen readers). It sits inside the same centered
+   column as the artwork, so its edges line up with the section rules and the masonry columns. The painting itself
+   is listed normally in Paintings.
+   The crop per screen size is set with three numbers: --z (how far the painting is enlarged past the column width),
+   --x and --y (which part shows: 0 = left/top edge, 1 = right/bottom edge). Where container units aren't supported,
+   a plain object-fit: cover crop is used instead. */
+.hero { --hero-h: 280px; --z: 1; --x: .5; --y: .7; position: relative; overflow: hidden; height: var(--hero-h); margin: 0; background: var(--rule); container-type: inline-size; }
+.hero img { display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: calc(var(--x) * 100%) calc(var(--y) * 100%); pointer-events: none; user-select: none; }
+@supports (width: 1cqw) {
+  .hero img { position: absolute; width: calc(100cqw * var(--z)); height: auto; left: calc((100cqw - 100cqw * var(--z)) * var(--x)); top: calc((var(--hero-h) - 100cqw * var(--z) * .454375) * var(--y)); }
+}
+/* Tablet: shallower, a little more of the street. */
+@media (max-width: 959px) { .hero { --hero-h: 196px; --y: .72; } }
+/* Phone: a slim 88px detail, enlarged so the storefronts read at this size; centered on the row of colored facades. */
+@media (max-width: 559px) { .hero { --hero-h: 88px; --z: 1.45; --x: .3; --y: .74; } }
+
+/* Top of the page as one composition: exhibition bar, name and links, masthead image, Paintings heading, with
+   even, shorter steps between them. */
+.site-head:has(.nav-art) { padding-top: 26px; margin-bottom: 14px; }
+@media (min-width: 800px) { .site-head:has(.nav-art) { padding-top: 30px; padding-bottom: 16px; margin-bottom: 18px; } }
+#main > section.section:first-of-type { padding-top: 40px; }
+@media (min-width: 800px) { #main > section.section:first-of-type { padding-top: 48px; } }
+@media (max-width: 559px) {
+  .site-head:has(.nav-art) { padding-top: 14px; margin-bottom: 12px; }
+  .site-head:has(.nav-art) .nav-side { top: 14px; }
+  .site-head:has(.nav-art) .nav-art a { padding: 10px 0; }
+  #main > section.section:first-of-type { padding-top: 24px; }
+}
 
 /* Structured grid: equal columns, tops aligned in each row, every picture whole at its own proportions,
    caption right under it, page order kept. Built on twice as many tracks as columns (each work spans two),
