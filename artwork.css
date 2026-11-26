@@ -284,7 +284,7 @@ dialog.show-pop.is-closing::backdrop { background-color: rgba(18, 18, 18, 0); }
    the grid rows below it, and a shorter limit on tall pieces. */
 @media (max-width: 559px) {
   .featured { margin-bottom: 28px; }
-  .work-featured img { max-height: 58vh; }
+  .work-featured img { max-height: 50vh; }
   .work-featured .ph { aspect-ratio: 4 / 3; max-height: 58vh; }
 }
 
@@ -298,4 +298,18 @@ dialog.show-pop.is-closing::backdrop { background-color: rgba(18, 18, 18, 0); }
   .works { row-gap: 32px; }
   .work figcaption { padding-top: 8px; }
   .work figcaption .m { padding-top: 1px; }
+}
+/* A collection with no featured piece yet simply starts with its grid. */
+.featured:not(:has(figure)) { display: none; }
+
+/* Wide screens (3 columns): the featured work is sized by height, so the whole piece shows in one view
+   and the grid starts soon after it; its caption sits beside it at the bottom like a wall label when
+   there is room, and drops under it when the piece is wide enough to fill the gallery. Height is set
+   outright (width follows from the width/height in the markup), so the layout is right before the
+   picture loads. */
+@media (min-width: 960px) {
+  .work-featured { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0 32px; }
+  .work-featured a.zoom { flex: 0 1 auto; min-width: 0; }
+  .work-featured img { width: auto; height: min(64vh, 700px); max-width: 100%; max-height: none; object-fit: contain; object-position: left bottom; }
+  .work-featured figcaption { flex: 1 0 200px; padding-top: 14px; padding-bottom: 2px; }
 }
