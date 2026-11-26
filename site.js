@@ -636,9 +636,9 @@
   d.className = 'leave-pop';
   d.setAttribute('aria-labelledby', 'leave-h');
   d.innerHTML = '<div class="leave-card"><h2 id="leave-h">Prints</h2>' +
-    '<p>My prints are sold through my Etsy shop, which opens in a new tab. This site stays open here.</p>' +
-    '<p class="leave-acts"><button class="leave-stay" type="button">Stay here</button>' +
-    '<a class="leave-go" href="' + links[0].href + '" target="_blank" rel="noopener">Go to Etsy</a></p></div>';
+    '<p>My prints are available through my Etsy shop.</p>' +
+    '<p class="leave-acts"><a class="leave-go" href="' + links[0].href + '" target="_blank" rel="noopener">Continue to Etsy<span class="vh"> (opens in a new tab)</span></a>' +
+    '<button class="leave-stay" type="button">Stay on this website</button></p></div>';
   document.body.appendChild(d);
   var go = d.querySelector('.leave-go');
   function shut() { d.close(); }
@@ -702,4 +702,29 @@
   });
   window.addEventListener('load', all);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(all);
+})();
+
+/* The name in the header always leads back to the artwork (the front page). On the front page itself it
+   scrolls back to the top instead of reloading. */
+(function () {
+  var name = document.querySelector('a.site-name');
+  if (!name || !document.querySelector('.nav-art')) return;
+  name.addEventListener('click', function (e) {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+    e.preventDefault();
+    if (history.replaceState && location.hash) history.replaceState(null, '', location.pathname + location.search);
+    var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: still ? 'auto' : 'smooth' });
+  });
+})();
+
+/* Info page: the 2026 show is marked Upcoming until it opens, then On view, then the label goes. */
+(function () {
+  var li = document.querySelector('.shows li[data-from]');
+  if (!li) return;
+  var when = li.querySelector('.when'), now = Date.now();
+  var from = Date.parse(li.getAttribute('data-from') + 'T00:00:00-05:00'), until = Date.parse(li.getAttribute('data-until') + 'T00:00:00-05:00');
+  if (!when || !from || !until) return;
+  if (now >= until) when.hidden = true;
+  else if (now >= from) when.textContent = 'On view';
 })();

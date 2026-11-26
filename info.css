@@ -50,23 +50,29 @@
   .info-detail figcaption { padding-left: 0; }
 }
 
-/* Exhibitions: years set large in burnt peach; the coming show sits on a block of pale peach. */
+/* Selected Exhibitions & Collections (Nov 26 2026): set like an artist's CV. Year at the left, details beside it.
+   The 2026 show leads on a block of pale peach; older entries are single compact lines. Exhibitions and
+   collections are two labeled lists. */
 .info-shows { padding-top: 96px; display: grid; gap: 24px 40px; }
-.info-shows h2 { font-size: 1.75rem; letter-spacing: -.01em; }
-.shows { list-style: none; padding: 0; margin: 0; border-bottom: 1px solid var(--rule); }
-.shows li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 0 20px; align-items: baseline; padding: 20px 0; border-top: 1px solid var(--rule); }
-.shows .yr { font-size: 1.75rem; line-height: 1; letter-spacing: -.01em; color: var(--accent); font-variant-numeric: tabular-nums; }
-.shows .yr-word { font-size: 1rem; letter-spacing: .08em; text-transform: uppercase; }
-.shows .t { display: block; font-size: 1.125rem; }
-.shows .v { display: block; color: var(--grey); }
-.shows strong { font-weight: 400; color: var(--accent); }
-.shows li.next { background: var(--tint); border-top-color: transparent; padding: 24px 20px; margin: 0 -20px; grid-template-columns: 6.5rem minmax(0, 1fr); }
-.shows li.next + li { border-top-color: transparent; }
-.shows li.next .v { color: var(--ink); }
+.info-shows h2 { font-size: 1.75rem; letter-spacing: -.01em; line-height: 1.15; max-width: 14ch; }
+.cv-k { font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; color: var(--grey); padding-bottom: 10px; }
+.cv-k + .shows { border-top: 1px solid var(--ink); }
+.shows + .cv-k { padding-top: 40px; }
+.shows { list-style: none; padding: 0; margin: 0; }
+.shows li { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); gap: 0 20px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.shows .yr { font-variant-numeric: tabular-nums; color: var(--grey); }
+.shows .t { color: var(--ink); }
+.shows .v { color: var(--grey); }
+.shows i { font-style: italic; }
+.shows li.next { padding: 22px 20px 24px; margin: 0 -20px; background: var(--tint); border-bottom-color: transparent; }
+.shows li.next .yr { grid-column: 1; font-size: 1.75rem; line-height: 1; letter-spacing: -.01em; color: var(--accent); }
+.shows li.next p { grid-column: 2; }
+.shows li.next .t { display: block; font-size: 1.375rem; line-height: 1.2; padding-bottom: 6px; }
+.shows li.next .v { display: block; color: var(--ink); }
+.shows .when { display: block; margin-top: 10px; font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
 @media (min-width: 960px) {
   .info-shows { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); padding-top: 136px; }
-  .shows li { grid-template-columns: 8rem minmax(0, 1fr); }
-  .shows li.next { grid-template-columns: 8rem minmax(0, 1fr); }
+  .shows li { grid-template-columns: 6rem minmax(0, 1fr); }
 }
 
 /* Contact: the deep blue of the cloth, full width down to the footer, opened by a strip of the painting's colors. */
