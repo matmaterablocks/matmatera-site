@@ -313,3 +313,8 @@ dialog.show-pop.is-closing::backdrop { background-color: rgba(18, 18, 18, 0); }
   .work-featured img { width: auto; height: min(64vh, 700px); max-width: 100%; max-height: none; object-fit: contain; object-position: left bottom; }
   .work-featured figcaption { flex: 1 0 200px; padding-top: 14px; padding-bottom: 2px; }
 }
+
+/* Opening band (Nov 26 2026): the show card's color strip, used under the links until Mat's own opening image
+   is ready. Thin, but a step taller than the 6px strip on the card. */
+.opening-band { height: 14px; background: linear-gradient(90deg, #81c2ed 0 22%, #f3c7b4 22% 28%, #eea77e 28% 39%, #e1dddf 39% 45%, #b1a66e 45% 62%, #465b54 62% 72%, #73c9f3 72% 100%); }
+@media (max-width: 559px) { .opening-band { height: 10px; } }

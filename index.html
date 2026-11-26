@@ -8,7 +8,7 @@
 <meta name="color-scheme" content="light dark">
 <script>document.documentElement.classList.add("js");try{if(!sessionStorage.getItem("show-intro"))document.documentElement.classList.add("show-intro")}catch(e){}try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="stylesheet" href="styles.css?v=ca776ca3">
-<link rel="stylesheet" href="artwork.css?v=cb5aecf9">
+<link rel="stylesheet" href="artwork.css?v=86d493d8">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -19,11 +19,9 @@
 </header>
 <main id="main" data-see-all="20" data-show="6">
 <h1 class="vh">Mat Matera, artwork</h1>
-<!-- Opening image: a shallow strip of close-up details from all four mediums (real crops, no generated
-     material), right under the links. Three versions are on this preview; the one shown is set below. -->
-<div class="hero" aria-hidden="true"><img src="assets/opening/header-v3-balanced.webp" srcset="assets/opening/header-v3-balanced-1200.webp 1200w, assets/opening/header-v3-balanced.webp 2400w" sizes="(min-width: 1240px) 1160px, 94vw" alt="" width="2400" height="650" fetchpriority="high" decoding="async" draggable="false"></div>
-<!-- Preview only (remove before going live): ?header=1, 2 or 3 swaps in the colorful, subtle or balanced version. -->
-<script>(function(){var m=/[?&]header=([123])/.exec(location.search);if(!m)return;var n={1:"v1-colorful",2:"v2-subtle",3:"v3-balanced"}[m[1]];var i=document.querySelector(".hero img");i.src="assets/opening/header-"+n+".webp";i.srcset="assets/opening/header-"+n+"-1200.webp 1200w, assets/opening/header-"+n+".webp 2400w";})();</script>
+<!-- Opening band: for now the same color strip as the show card (colors taken from the paintings), a little
+     taller. Mat will make the opening image by hand later; it goes here as <div class="hero"><img ...></div>. -->
+<div class="opening-band" aria-hidden="true"></div>
 <section class="section" id="oils" aria-labelledby="oils-h">
 <div class="section-head"><h2 id="oils-h">Paintings</h2></div>
 <!-- Featured paintings piece: one larger work that leads the section. To set it, move that work's <figure> out of the grid
