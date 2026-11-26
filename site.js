@@ -594,7 +594,19 @@
   // Escape folds it up the same way.
   pop.addEventListener('cancel', function (e) { e.preventDefault(); shut(); });
   pop.querySelector('.show-close').addEventListener('click', shut);
-  pop.querySelector('.show-go').addEventListener('click', shut);
+  // "View artwork from the exhibition" opens the show's painting (Hiding, donuts.webp) in the large view, with its
+  // usual details and Previous/Next through Paintings. It finds the painting by its image file, so it keeps working
+  // if the title changes or works are reordered. Without JavaScript, or if that painting isn't on the page, the link
+  // opens the painting's image file itself.
+  var go = pop.querySelector('.show-go');
+  go.addEventListener('click', function (e) {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+    var work = document.querySelector('a.zoom[href="' + go.getAttribute('data-work') + '"]');
+    if (!work) return;
+    e.preventDefault();
+    pop.close();
+    work.click();
+  });
   // A click on the dimmed backdrop (outside the card) closes it too.
   pop.addEventListener('click', function (e) { if (e.target === pop) shut(); });
   if (line) {

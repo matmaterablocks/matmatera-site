@@ -110,6 +110,9 @@ dialog.show-pop::backdrop { background: rgba(18, 18, 18, .62); }
 .show-go { font: inherit; color: var(--card); background: var(--band-ink); border: 0; border-radius: 0; min-height: 44px; padding: 0 18px; cursor: pointer; }
 .show-go::after { content: "\00a0\2192"; }
 .show-go:hover { text-decoration: underline; text-underline-offset: .18em; }
+.show-links a.show-go { display: inline-flex; align-items: center; color: var(--card); padding: 0 18px; text-decoration: none; }
+.show-links a.show-go:hover { text-decoration: underline; text-underline-offset: .18em; }
+@media (max-width: 559px) { .show-links a.show-go { flex: 1 1 100%; justify-content: center; white-space: nowrap; padding: 0 12px; font-size: .9375rem; } }
 .show-close { position: absolute; top: 14px; right: 12px; width: 44px; height: 44px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 50%; background: none; color: var(--band-ink); cursor: pointer; }
 .show-close svg { width: 36px; height: 36px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: square; }
 .show-close:hover circle { fill: var(--band-ink); }
