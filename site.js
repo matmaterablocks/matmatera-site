@@ -594,7 +594,7 @@
   // Escape folds it up the same way.
   pop.addEventListener('cancel', function (e) { e.preventDefault(); shut(); });
   pop.querySelector('.show-close').addEventListener('click', shut);
-  // "View artwork from the exhibition" opens the show's painting (Hiding, donuts.webp) in the large view, with its
+  // "Back to Artwork" opens Hiding (donuts.webp, one of the two works in the show) in the large view, with its
   // usual details and Previous/Next through Paintings. It finds the painting by its image file, so it keeps working
   // if the title changes or works are reordered. Without JavaScript, or if that painting isn't on the page, the link
   // opens the painting's image file itself.
