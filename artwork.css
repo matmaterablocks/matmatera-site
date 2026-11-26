@@ -250,3 +250,52 @@ dialog.show-pop.is-closing::backdrop { background-color: rgba(18, 18, 18, 0); }
 :is(#pastels, #charcoal, #digital) { scroll-margin-top: -40px; }
 @media (min-width: 560px) { #oils { scroll-margin-top: -32px; } }
 @media (min-width: 800px) { #oils { scroll-margin-top: -48px; } :is(#pastels, #charcoal, #digital) { scroll-margin-top: -56px; } }
+
+
+/* ===== Collections refinement (Nov 26 2026, preview branch) =====
+   Four equal collections in the order Paintings, Digital, Pastels, Drawings. Each opens with one larger
+   featured work, then the usual grid continues underneath. Same captions, same spacing rhythm, no frames. */
+
+/* Placeholders (opening image and featured pieces) while the real choices are pending: a quiet wall-tone
+   block with a small grey label. Delete " is-placeholder" from the markup once the real image is in. */
+.is-placeholder .ph-label { font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--grey); text-align: center; padding: 0 12px; }
+.hero.is-placeholder { display: grid; place-items: center; }
+
+/* Opening image: shallow and panoramic, right under the links, never a full-screen hero. The real composite
+   fills the strip with a plain cover crop; --x / --y pick which part shows (0 = left/top, 1 = right/bottom). */
+.hero:not(.is-placeholder) img { position: static; width: 100%; height: 100%; object-fit: cover; object-position: calc(var(--x) * 100%) calc(var(--y) * 100%); }
+.hero { --hero-h: 240px; --x: .5; --y: .5; }
+@media (max-width: 959px) { .hero { --hero-h: 176px; } }
+@media (max-width: 559px) { .hero { --hero-h: 92px; } }
+
+/* Featured work: leads its collection at the full gallery width on wide screens, whole and at its own
+   proportions. Tall pieces are held to most of a screen's height so the grid below is never far away.
+   Its caption is the same as every other caption. */
+.featured { margin-bottom: 72px; }
+/* The picture's box keeps the full column width so its height is known before it loads (lazy loading);
+   object-fit then draws it whole and unstretched inside, from the left edge. */
+.work-featured img { width: 100%; height: auto; max-width: min(100%, var(--w, 100%)); max-height: min(72vh, 820px); object-fit: contain; object-position: left top; }
+.work-featured .ph { width: 100%; aspect-ratio: 2 / 1; max-height: min(72vh, 820px); display: grid; place-items: center; background: var(--rule); }
+@media (max-width: 959px) {
+  .featured { margin-bottom: 56px; }
+  .work-featured img, .work-featured .ph { max-height: 70vh; }
+}
+/* Phones: kept modest so it reads as the first work in the grid, not a wall in front of it. Same gap as
+   the grid rows below it, and a shorter limit on tall pieces. */
+@media (max-width: 559px) {
+  .featured { margin-bottom: 28px; }
+  .work-featured img { max-height: 58vh; }
+  .work-featured .ph { aspect-ratio: 4 / 3; max-height: 58vh; }
+}
+
+/* Gallery: a little more air around captions; the medium line stays secondary. Rows get the same extra room,
+   so spacing between works stays even. */
+.work figcaption { padding-top: 14px; }
+.work figcaption .m { padding-top: 3px; }
+.works { row-gap: 56px; }
+@media (min-width: 960px) { .works { row-gap: 72px; } }
+@media (max-width: 559px) {
+  .works { row-gap: 32px; }
+  .work figcaption { padding-top: 8px; }
+  .work figcaption .m { padding-top: 1px; }
+}
